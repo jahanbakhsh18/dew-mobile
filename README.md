@@ -25,13 +25,13 @@ This project showcases a modern mobile application built with React Native. It s
 
 ### Installation
 ```bash
-git clone https://github.com/[your-username]/dew-mobile.git
-cd dew-mobile
-npm install
+$ git clone https://github.com/jahanbakhsh18/dew-mobile.git
+$ cd dew-mobile
+$ npm install
 ```
 
 ### Running the App
 ```bash
-npm run android
-npm run ios
+$ npm run android
+$ npm run ios
 ```

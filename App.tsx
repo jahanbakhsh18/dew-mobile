@@ -16,6 +16,31 @@ const App: React.FC = () => {
 export default App;
 
 /*
+import React from 'react';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { WebView } from 'react-native-webview';
+
+const App = () => {
+  // This URL would be your service developer's local dev server or staging site
+  const SERVICE_WEB_APP_URL = 'http://10.112.181.69:5173/'; 
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <WebView source={{ uri: SERVICE_WEB_APP_URL }} />
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
+
+export default App;
+*/
+
+/*
 import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import {

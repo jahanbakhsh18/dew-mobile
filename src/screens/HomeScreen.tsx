@@ -1,21 +1,44 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  StatusBar,
+} from 'react-native';
+import FormCard from '../components/FormCard';
 
 const HomeScreen: React.FC = () => {
-  const { user, logout } = useAuth();
+  const sampleForms = [
+    { id: '1', title: 'Contact Form', description: 'Fill out your contact information and we will get back to you.'},
+    { id: '2', title: 'Feedback Form',description: 'Help us improve by sharing your feedback and suggestions.' },
+    { id: '3', title: 'Registration Form', description: 'Register for upcoming events and webinars.' },
+    { id: '4', title: 'Survey Form', description: 'Participate in our quick survey and earn rewards.' },
+    { id: '5', title: 'Contact Form', description: 'Fill out your contact information and we will get back to you.'},
+    { id: '6', title: 'Feedback Form',description: 'Help us improve by sharing your feedback and suggestions.' },
+    { id: '7', title: 'Registration Form', description: 'Register for upcoming events and webinars.' },
+    { id: '8', title: 'Survey Form', description: 'Participate in our quick survey and earn rewards.' }
+  ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Welcome, {user?.username}!</Text>
-        <Text style={styles.subtitle}>You are now logged in</Text>
-        
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Home</Text>
+        <Text style={styles.headerSubtitle}>Available Forms</Text>
       </View>
-    </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {sampleForms.map((form) => (
+          <FormCard
+            key={form.id}
+            title={form.title}
+            description={form.description}
+          />
+        ))}
+        <View style={styles.bottomPadding} />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -23,42 +46,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    padding: 20,
   },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 12,
+    backgroundColor: '#f5f5f5',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
+  headerTitle: {
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#1A1A1A',
   },
-  subtitle: {
+  headerSubtitle: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 30,
+    marginTop: 4,
   },
-  logoutButton: {
-    backgroundColor: '#FF3B30',
-    padding: 15,
-    borderRadius: 8,
-    width: '100%',
-    alignItems: 'center',
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  bottomPadding: {
+    height: 80,
   },
 });
 
