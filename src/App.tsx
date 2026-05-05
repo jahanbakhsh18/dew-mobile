@@ -1,6 +1,6 @@
 import React from 'react';
-import { AuthProvider } from './src/contexts/AuthContext';
-import AppNavigator from './src/navigation/AppNavigator';
+import { AuthProvider } from './contexts/AuthContext';
+import AppNavigator from './navigation/AppNavigator';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const App: React.FC = () => {

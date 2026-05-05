@@ -4,10 +4,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   StatusBar,
 } from 'react-native';
 import FormCard from '../components/FormCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen: React.FC = () => {
   const sampleForms = [

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { AuthState, User } from '../types';
+import { AuthState } from '../types';
 import authService from '../services/auth.service';
 import biometricService from '../services/biometric.service';
 

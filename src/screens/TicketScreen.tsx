@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   StatusBar,
   TouchableOpacity,
 } from 'react-native';
 import SamplePopup from '../components/SamplePopup';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Ticket {
   id: string;
