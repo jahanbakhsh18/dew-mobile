@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 512 512"
+   width="512"
+   height="512"
+   version="1.1"
+   id="svg262"
+   sodipodi:docname="icon.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview264"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="1.5390625"
+     inkscape:cx="256"
+     inkscape:cy="256"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg262" />
+  <defs
+     id="defs174">
+    <!-- Simple gradients (Inkscape-friendly) -->
+    <linearGradient
+       id="leafGradient"
+       x1="0%"
+       y1="0%"
+       x2="0%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#7CFC00"
+         id="stop150" />
+      <stop
+         offset="50%"
+         stop-color="#2E8B57"
+         id="stop152" />
+      <stop
+         offset="100%"
+         stop-color="#006400"
+         id="stop154" />
+    </linearGradient>
+    <linearGradient
+       id="dropGradient"
+       x1="0%"
+       y1="0%"
+       x2="0%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#E0FFFF"
+         id="stop157" />
+      <stop
+         offset="40%"
+         stop-color="#7DF9FF"
+         id="stop159" />
+      <stop
+         offset="100%"
+         stop-color="#0099CC"
+         id="stop161" />
+    </linearGradient>
+    <linearGradient
+       id="bgGradient"
+       x1="0%"
+       y1="0%"
+       x2="100%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#1a1a2e"
+         id="stop164" />
+      <stop
+         offset="100%"
+         stop-color="#16213e"
+         id="stop166" />
+    </linearGradient>
+    <linearGradient
+       id="ticketGradient"
+       x1="0%"
+       y1="0%"
+       x2="100%"
+       y2="100%">
+      <stop
+         offset="0%"
+         stop-color="#FF6B35"
+         id="stop169" />
+      <stop
+         offset="100%"
+         stop-color="#E85D04"
+         id="stop171" />
+    </linearGradient>
+  </defs>
+  <!-- Background rounded square -->
+  <rect
+     x="32"
+     y="32"
+     width="448"
+     height="448"
+     rx="96"
+     ry="96"
+     fill="url(#bgGradient)"
+     id="rect176" />
+  <!-- Dawn rays -->
+  <g
+     opacity="0.1"
+     id="g192">
+    <ellipse
+       cx="256"
+       cy="256"
+       rx="180"
+       ry="180"
+       fill="none"
+       stroke="#FFD700"
+       stroke-width="1.5"
+       id="ellipse178" />
+    <line
+       x1="256"
+       y1="76"
+       x2="256"
+       y2="140"
+       stroke="#FFD700"
+       stroke-width="2"
+       id="line180" />
+    <line
+       x1="436"
+       y1="256"
+       x2="372"
+       y2="256"
+       stroke="#FFD700"
+       stroke-width="2"
+       id="line182" />
+    <line
+       x1="145"
+       y1="145"
+       x2="189"
+       y2="189"
+       stroke="#FFD700"
+       stroke-width="1.5"
+       id="line184" />
+    <line
+       x1="367"
+       y1="145"
+       x2="323"
+       y2="189"
+       stroke="#FFD700"
+       stroke-width="1.5"
+       id="line186" />
+    <line
+       x1="145"
+       y1="367"
+       x2="189"
+       y2="323"
+       stroke="#FFD700"
+       stroke-width="1.5"
+       id="line188" />
+    <line
+       x1="367"
+       y1="367"
+       x2="323"
+       y2="323"
+       stroke="#FFD700"
+       stroke-width="1.5"
+       id="line190" />
+  </g>
+  <!-- LEAF shadow (simple ellipse instead of filter) -->
+  <ellipse
+     cx="260"
+     cy="380"
+     rx="100"
+     ry="30"
+     fill="#000000"
+     opacity="0.2"
+     id="ellipse194" />
+  <!-- LEAF -->
+  <path
+     d="M 256 380             C 180 380, 140 320, 140 260             C 140 200, 180 140, 220 100             C 235 85, 250 75, 256 70            C 262 75, 277 85, 292 100            C 332 140, 372 200, 372 260            C 372 320, 332 380, 256 380 Z"
+     fill="url(#leafGradient)"
+     stroke="#004d00"
+     stroke-width="1.5"
+     id="path196" />
+  <!-- Leaf center vein -->
+  <path
+     d="M 256 380 C 256 300, 256 180, 256 70"
+     fill="none"
+     stroke="#90EE90"
+     stroke-width="2.5"
+     opacity="0.45"
+     id="path198" />
+  <!-- Leaf side veins -->
+  <g
+     stroke="#90EE90"
+     stroke-width="1.5"
+     opacity="0.3"
+     fill="none"
+     stroke-linecap="round"
+     id="g212">
+    <path
+       d="M 256 300 C 235 285, 210 270, 195 265"
+       id="path200" />
+    <path
+       d="M 256 300 C 277 285, 302 270, 317 265"
+       id="path202" />
+    <path
+       d="M 256 230 C 238 218, 218 208, 205 205"
+       id="path204" />
+    <path
+       d="M 256 230 C 274 218, 294 208, 307 205"
+       id="path206" />
+    <path
+       d="M 256 165 C 242 157, 228 152, 220 150"
+       id="path208" />
+    <path
+       d="M 256 165 C 270 157, 284 152, 292 150"
+       id="path210" />
+  </g>
+  <!-- Dew Drop shadow -->
+  <ellipse
+     cx="258"
+     cy="195"
+     rx="25"
+     ry="8"
+     fill="#000000"
+     opacity="0.15"
+     id="ellipse214" />
+  <!-- DEW DROP -->
+  <path
+     d="M 256 135             C 256 135, 230 160, 228 180             C 226 200, 235 215, 256 218            C 277 215, 286 200, 284 180            C 282 160, 256 135, 256 135 Z"
+     fill="url(#dropGradient)"
+     stroke="#0088BB"
+     stroke-width="1"
+     id="path216" />
+  <!-- Drop highlight -->
+  <ellipse
+     cx="245"
+     cy="178"
+     rx="8"
+     ry="12"
+     fill="white"
+     opacity="0.45"
+     id="ellipse218" />
+  <ellipse
+     cx="243"
+     cy="175"
+     rx="3"
+     ry="5"
+     fill="white"
+     opacity="0.75"
+     id="ellipse220" />
+  <!-- TICKET inside dew drop -->
+  <!-- Sparkles -->
+  <g
+     opacity="0.5"
+     id="g256">
+    <circle
+       cx="215"
+       cy="155"
+       r="2.5"
+       fill="#FFD700"
+       id="circle244" />
+    <circle
+       cx="295"
+       cy="160"
+       r="2"
+       fill="#7DF9FF"
+       id="circle246" />
+    <circle
+       cx="270"
+       cy="130"
+       r="1.8"
+       fill="#FFD700"
+       id="circle248" />
+    <circle
+       cx="240"
+       cy="235"
+       r="1.5"
+       fill="#7DF9FF"
+       id="circle250" />
+    <circle
+       cx="210"
+       cy="210"
+       r="1.5"
+       fill="#FFD700"
+       id="circle252" />
+    <circle
+       cx="300"
+       cy="195"
+       r="1.2"
+       fill="#FFFFFF"
+       id="circle254" />
+  </g>
+  <!-- "DW" text -->
+  <!-- Simple ring behind DW -->
+</svg>

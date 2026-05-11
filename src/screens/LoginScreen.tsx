@@ -14,7 +14,7 @@ import { useAuth } from '../contexts/AuthContext';
 const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberBiometric, setRememberBiometric] = useState(false);
+  const [rememberBiometric, setRememberBiometric] = useState(true);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   
   const { 
@@ -88,6 +88,8 @@ const LoginScreen: React.FC = () => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            autoCapitalize="none"
+            //keyboardType='number-pad'
             editable={!loading}
           />
 
@@ -173,6 +175,7 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     backgroundColor: '#fafafa',
+    color: '#666'
   },
   biometricCheckbox: {
     flexDirection: 'row',

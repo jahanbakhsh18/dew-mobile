@@ -11,6 +11,7 @@
     "push": "standard-version"
   },
   "dependencies": {
+    "@preeternal/react-native-cookie-manager": "^6.3.2",
     "@react-native-async-storage/async-storage": "^1.24.0",
     "@react-native/new-app-screen": "0.85.2",
     "@react-navigation/bottom-tabs": "^7.15.10",

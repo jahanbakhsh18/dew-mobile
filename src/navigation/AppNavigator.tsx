@@ -10,9 +10,9 @@ const Stack = createNativeStackNavigator();
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return null; // Or a loading screen
-  }
+  // if (loading) {
+  //   return null; // Or a loading screen
+  // }
 
   return (
     <NavigationContainer>
