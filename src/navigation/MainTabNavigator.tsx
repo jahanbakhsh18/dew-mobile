@@ -14,7 +14,7 @@ const MainTabNavigator: React.FC = () => {
       screenOptions={{
         headerShown: false,
       }}
-      initialRouteName="Home"
+      initialRouteName="Tickets"
     >
       <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Tickets" component={TicketsScreen} />

@@ -25,10 +25,10 @@ const HomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Home</Text>
-        <Text style={styles.headerSubtitle}>Available Forms</Text>
+        <Text style={styles.headerTitle}>Create Ticket</Text>
+        <Text style={styles.headerSubtitle}>Please fill the form...</Text>
       </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {/* <ScrollView showsVerticalScrollIndicator={false}>
         {sampleForms.map((form) => (
           <FormCard
             key={form.id}
@@ -37,7 +37,7 @@ const HomeScreen: React.FC = () => {
           />
         ))}
         <View style={styles.bottomPadding} />
-      </ScrollView>
+      </ScrollView> */}
     </SafeAreaView>
   );
 };
@@ -48,13 +48,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingHorizontal: 100,
+    paddingTop: 100,
     paddingBottom: 12,
     backgroundColor: '#f5f5f5',
   },
   headerTitle: {
-    fontSize: 34,
+    fontSize: 28,
     fontWeight: '700',
     color: '#1A1A1A',
   },

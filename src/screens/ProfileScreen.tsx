@@ -33,7 +33,7 @@ const ProfileScreen: React.FC = () => {
     { icon: 'notifications', title: 'Notifications', onPress: () => Alert.alert('Coming Soon', 'Notification settings will be available soon') },
     { icon: 'security', title: 'Security', onPress: () => Alert.alert('Coming Soon', 'Security settings will be available soon') },
     { icon: 'help', title: 'Help & Support', onPress: () => Alert.alert('Coming Soon', 'Help center will be available soon') },
-    { icon: 'slideshow', title: 'Show Case', onPress: () => { Alert.alert("OK") } }
+    //{ icon: 'slideshow', title: 'Show Case', onPress: () => { Alert.alert("OK") } }
   ];
 
   return (
