@@ -23,13 +23,13 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
   // Tab configuration with icons
   const tabConfig = {
     Profile: { icon: 'person', label: 'Profile', position: 'left' },
-    Home: { icon: 'add-circle-outline', label: 'Add', position: 'center' },
+    Create: { icon: 'add-circle-outline', label: 'Add', position: 'center' },
     Tickets: { icon: 'confirmation-num', label: 'Tickets', position: 'right' }
   };
 
   // Reorder tabs for better layout (left, center, right)
   const orderedRoutes = [...state.routes].sort((a, b) => {
-    const order = { Profile: 0, Tickets: 1, Home: 2 };
+    const order = { Profile: 0, Tickets: 1, Create: 2 };
     return order[a.name as keyof typeof order] - order[b.name as keyof typeof order];
   });
 
@@ -75,14 +75,13 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
   };
 
   const renderCenterFab = () => {
-    const homeRoute = state.routes.find((r: any) => r.name === 'Home');
-    const isFocused = state.index === state.routes.findIndex((r: any) => r.name === 'Home');
-    const config = tabConfig.Home;
+    const isFocused = state.index === state.routes.findIndex((r: any) => r.name === 'Create');
+    const config = tabConfig.Create;
 
     return (
       <TouchableOpacity
         key="center-fab"
-        onPress={() => onPress('Home', isFocused)}
+        onPress={() => onPress('Create', isFocused)}
         style={styles.fabContainer}
         activeOpacity={0.8}
       >
@@ -106,13 +105,8 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
       { paddingBottom: insets.bottom > 0 ? insets.bottom : 10 }
     ]}>
       <View style={styles.tabBar}>
-        {/* Left tabs (Profile and Tickets) */}
-        {orderedRoutes
-          .filter(route => route.name !== 'Home')
-          .map((route, index) => renderLeftTab(route, index))}
+        {orderedRoutes.filter(route => route.name !== 'Create').map((route, index) => renderLeftTab(route, index))}
       </View>
-      
-      {/* Center FAB - rendered outside the tab bar */}
       {renderCenterFab()}
     </View>
   );

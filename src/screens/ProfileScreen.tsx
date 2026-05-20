@@ -49,7 +49,7 @@ const ProfileScreen: React.FC = () => {
             </View>
           </View>
           <Text style={styles.userName}>{user?.username || 'User'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'user@example.com'}</Text>
+          <Text style={styles.userEmail}>user@example.com</Text>
         </View>
 
         <View style={styles.menuSection}>

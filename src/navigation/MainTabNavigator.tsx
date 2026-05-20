@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen';
+import CreateScreen from '../screens/CreateScreen';
 import TicketsScreen from '../screens/TicketScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CustomTabBar from '../components/CustomTabBar';
@@ -18,7 +18,7 @@ const MainTabNavigator: React.FC = () => {
     >
       <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Tickets" component={TicketsScreen} />
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Create" component={CreateScreen} />
     </Tab.Navigator>
   );
 };

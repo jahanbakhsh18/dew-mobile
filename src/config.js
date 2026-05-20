@@ -1,4 +1,4 @@
-const SERVER_IP = '10.61.243.3';
+const SERVER_IP = '10.238.249.122';
 
 // Development vs Production configuration
 const config = {

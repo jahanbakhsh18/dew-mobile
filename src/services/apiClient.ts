@@ -12,9 +12,14 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(async (config) => {
   const cookies = await CookieManager.get(API_URL);
 
-  // Convert the cookies object into a string format for the header
   const cookieString = Object.entries(cookies)
-    .map(([key, value]) => `${key}=${value}`)
+    .map(([key, cookieData]) => {
+      if (typeof cookieData === 'object' && cookieData !== null) {
+        const cookieValue = cookieData.value || cookieData;
+        return `${key}=${cookieValue}`;
+      }
+      return `${key}=${cookieData}`;
+    })
     .join('; ');
 
   if (cookieString) {
@@ -27,13 +32,14 @@ apiClient.interceptors.request.use(async (config) => {
     const csrfToken = cookies['CSRF-TOKEN'];
     if (csrfToken?.value) {
       config.headers['X-CSRF-TOKEN'] = csrfToken.value;
-      console.log('✅ Added X-CSRF-TOKEN header:', csrfToken.value.substring(0, 50) + '...');
+      //console.log('✅ Added X-CSRF-TOKEN header:', csrfToken.value.substring(0, 50) + '...');
     } else {
       console.warn('⚠️ CSRF-TOKEN cookie not found');
     }
   }
 
-  console.log("Cookies", Object.entries(cookies));
+  //console.log("Cookies", Object.entries(cookies));
+
   return config;
 }, (error) => Promise.reject(error));
 
@@ -69,7 +75,7 @@ apiClient.interceptors.response.use(async (response) => {
   (error: AxiosError) => {
     const [type, message] = getErrorMessage(error);
 
-    // if (type != "HTTP") //Do not show HTTP errors
+    // if (type != "HTTP")
     console.error(message);
 
     return Promise.reject({

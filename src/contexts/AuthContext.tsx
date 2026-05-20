@@ -4,11 +4,15 @@ import authService from '../services/auth.service';
 import biometricService from '../services/biometric.service';
 
 interface AuthContextType extends AuthState {
+  refreshCsrfToken: () => Promise<void>;
   loginWithPassword: (username: string, password: string) => Promise<void>;
   loginWithBiometric: () => Promise<void>;
   logout: () => Promise<void>;
   checkBiometricAvailability: () => Promise<boolean>;
   saveCredentialsForBiometric: (username: string, password: string) => Promise<boolean>;
+  getDropdownOptions: (key: string, url: string) => Promise<any[]>;
+  setDropdownData: (key: string, data: any[]) => void;
+  clearDropdownData: (key?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user: null,
     loading: true,
     error: null,
+    dropdownData: {}
   });
 
   useEffect(() => {
@@ -28,12 +33,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkSession = async () => {
     try {
       const session = await authService.getSession();
+      console.log("AuthContext", state, session);
+
       if (session) {
+        console.log("We have session... TODO");
         setState({
-          isAuthenticated: true,
-          user: session.user,
+          isAuthenticated: false, //true,
+          user: null, //session.user,
           loading: false,
           error: null,
+          dropdownData: {}
         });
       } else {
         setState(prev => ({ ...prev, loading: false }));
@@ -44,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user: null,
         loading: false,
         error: 'Session check failed',
+        dropdownData: {}
       });
     }
   };
@@ -58,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         loading: false,
         error: null,
+        dropdownData: {}
       });
     } catch (error: any) {
       setState(prev => ({
@@ -89,6 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         loading: false,
         error: null,
+        dropdownData: {}
       });
     } catch (error: any) {
       setState(prev => ({
@@ -108,8 +120,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       user: null,
       loading: false,
       error: null,
+      dropdownData: {}
     });
   };
+
+  const refreshCsrfToken = async () => {
+    await authService.refreshCsrfToken();
+  }
 
   const checkBiometricAvailability = async () => {
     return await biometricService.isBiometricAvailable();
@@ -119,15 +136,66 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return await biometricService.saveCredentials(username, password);
   };
 
+  const fetchSerenityLookup = async <T,>(url: string) => {
+    const lookupItems = await authService.fetchSerenityLookup(url);
+    console.log("fetchSerenityLookup", url, lookupItems);
+    return lookupItems;
+  };
+
+  const getDropdownOptions = async (key: string, url: string): Promise<any[]> => {
+
+    if (state.dropdownData[key]) {
+      return state.dropdownData[key];
+    }
+
+    try {
+      const lookupItems = await fetchSerenityLookup(url);
+      setDropdownData(key, lookupItems);
+      return lookupItems;
+    } catch (error) {
+      console.error(`Failed to fetch dropdown data for ${key}:`, error);
+      throw error;
+    }
+  };
+
+  const setDropdownData = (key: string, data: any[]) => {
+    setState(prev => ({
+      ...prev,
+      dropdownData: {
+        ...prev.dropdownData,
+        [key]: data,
+      },
+    }));
+  };
+
+  const clearDropdownData = (key?: string) => {
+    if (key) {
+      const { [key]: _, ...rest } = state.dropdownData;
+      setState(prev => ({
+        ...prev,
+        dropdownData: rest,
+      }));
+    } else {
+      setState(prev => ({
+        ...prev,
+        dropdownData: {},
+      }));
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         ...state,
+        refreshCsrfToken,
         loginWithPassword,
         loginWithBiometric,
         logout,
         checkBiometricAvailability,
         saveCredentialsForBiometric,
+        getDropdownOptions,
+        setDropdownData,
+        clearDropdownData
       }}
     >
       {children}

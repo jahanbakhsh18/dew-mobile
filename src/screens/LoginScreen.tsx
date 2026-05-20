@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-  Switch,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Switch } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginScreen: React.FC = () => {
@@ -16,17 +7,19 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [rememberBiometric, setRememberBiometric] = useState(true);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
-  
-  const { 
-    loginWithPassword, 
-    loginWithBiometric, 
-    loading, 
+
+  const {
+    refreshCsrfToken,
+    loginWithPassword,
+    loginWithBiometric,
+    loading,
     error,
     checkBiometricAvailability,
-    saveCredentialsForBiometric 
+    saveCredentialsForBiometric
   } = useAuth();
 
   useEffect(() => {
+    refreshCsrfToken();
     checkBiometric();
   }, []);
 
@@ -49,7 +42,7 @@ const LoginScreen: React.FC = () => {
 
     try {
       await loginWithPassword(username, password);
-      
+
       if (rememberBiometric && biometricAvailable) {
         await saveCredentialsForBiometric(username, password);
       }
@@ -81,7 +74,7 @@ const LoginScreen: React.FC = () => {
             autoCapitalize="none"
             editable={!loading}
           />
-          
+
           <TextInput
             style={styles.input}
             placeholder="Password"

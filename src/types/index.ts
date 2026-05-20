@@ -1,7 +1,6 @@
 export interface User {
-  id: string;
   username: string;
-  email?: string;
+  loginTime: number
 }
 
 export interface AuthState {
@@ -9,6 +8,7 @@ export interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
+  dropdownData: any;
 }
 
 export interface LoginCredentials {

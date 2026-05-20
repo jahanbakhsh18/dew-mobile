@@ -4,6 +4,7 @@ import { apiClient } from './apiClient';
 import * as Keychain from 'react-native-keychain';
 import { API_URL } from '../config'
 import CookieManager from '@preeternal/react-native-cookie-manager';
+import { SerenityLookupResponse } from '../types/dropdown.types';
 
 class AuthService {
   private readonly TOKEN_KEY = '@auth_token';
@@ -17,12 +18,12 @@ class AuthService {
       });
 
       if (response.status == 200) {
+
         const user: User = {
-          id: response.data.userId || '1',
           username: credentials.username,
-          email: response.data.email || 'demo@example.com',
+          loginTime: Date.now()
         };
-        const token = response.data.token || 'fake-jwt-token';
+        const token = response.data.token || 'jwt-token';
 
         await Keychain.setGenericPassword(credentials.username, credentials.password, {
           accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
@@ -46,16 +47,13 @@ class AuthService {
   }
 
   async loginWithBiometric(): Promise<{ user: User; token: string }> {
-
-    //const storedCreds = await this.g
-
     return new Promise((resolve) => {
       setTimeout(() => {
         const user: User = {
-          id: '1',
-          username: 'biometric_user'
+          username: 'biometric_user',
+          loginTime: Date.now()
         };
-        const token = 'fake-biometric-token';
+        const token = 'biometric-token';
         resolve({ user, token });
       }, 500);
     });
@@ -78,7 +76,12 @@ class AuthService {
     const userStr = await AsyncStorage.getItem(this.USER_KEY);
 
     if (token && userStr) {
+      //const user: User = JSON.parse(userStr);
+
+      //if(user && (Date.now() - user.loginTime < 60 * 1000))
       return { token, user: JSON.parse(userStr) };
+      //else
+      //  return null;
     }
     return null;
   }
@@ -95,39 +98,23 @@ class AuthService {
   }
 
   async refreshCsrfToken(): Promise<void> {
+    console.log("Calling refreshCsrfToken...");
     apiClient.get("/"); //"Account/Login");
   }
+
+  async fetchSerenityLookup<T,>(url: string): Promise<T[]> {
+    try {
+      const response = await apiClient.get<SerenityLookupResponse>(url);
+
+      if (response.status === 200 && response.data) {
+        return response.data.Items;
+      }
+      throw new Error('Failed to fetch tickets');
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      throw error;
+    }
+  };
 }
 
 export default new AuthService();
-
-
-/*async loginWithPassword(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let response = await apiClient.post("/Account/Login", {
-          Username: credentials.username,
-          Password: credentials.password
-        });
-
-        console.log("login", response);
-
-        if (response.status == 200) {
-          const user: User = {
-            id: '1',
-            username: credentials.username,
-            password: credentials.password,
-            email: 'demo@example.com',
-          };
-          const token = 'fake-jwt-token';
-          resolve({ user, token });
-        } else {
-          reject(response?.statusText);
-        }
-      } catch (error) {
-        console.error(error);
-        reject(new Error('Invalid username or password'));
-      }
-    });
-  }
-  */

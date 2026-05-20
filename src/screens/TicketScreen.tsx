@@ -1,22 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  ActivityIndicator,
-  RefreshControl,
-  TextInput,
-  Modal,
-  ScrollView,
-  Alert,
-  StatusBar,
-  Platform,
+  View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, 
+  RefreshControl, TextInput, Modal, ScrollView, Alert, StatusBar, Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ticketService from '../services/ticketService';
-import { Ticket, TicketListResponse, TicketDetailResponse } from '../types/ticketTypes';
+import { Ticket, TicketListResponse, TicketDetailResponse } from '../types/ticket.types';
 
 const TicketScreen: React.FC = () => {
   // State for ticket list
@@ -25,7 +14,7 @@ const TicketScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-  
+
   // State for filters
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -36,17 +25,17 @@ const TicketScreen: React.FC = () => {
     sortOrder: 'DESC' as 'ASC' | 'DESC',
     take: 100
   });
-  
+
   // State for modal
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [ticketDetails, setTicketDetails] = useState<any>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
-  
+
   // State for search
   const [searchQuery, setSearchQuery] = useState('');
 
-    // Available options
+  // Available options
   const statusOptions = [
     { id: '', name: 'All Statuses' },
     { id: '1', name: 'Open' },
@@ -54,20 +43,20 @@ const TicketScreen: React.FC = () => {
     { id: '3', name: 'Resolved' },
     { id: '4', name: 'Closed' },
   ];
-  
+
   const systemOptions = [
     { id: '', name: 'All Systems' },
     { id: '1', name: 'System 1' },
     { id: '2', name: 'System 2' },
     { id: '3', name: 'System 3' },
   ];
-  
+
   const sortOptions = [
     { value: 'DateCreated', label: 'Date Created' },
     { value: 'ExpireDate', label: 'Expire Date' },
     { value: 'StatusName', label: 'Status' },
   ];
-  
+
   const sortOrderOptions = [
     { value: 'DESC', label: 'Newest First' },
     { value: 'ASC', label: 'Oldest First' },
@@ -78,11 +67,10 @@ const TicketScreen: React.FC = () => {
     fetchTickets();
   }, [filters.statusId, filters.systemId, filters.problemId, filters.sortBy, filters.sortOrder]);
 
-  // Fetch ticket list with current filters
   const fetchTickets = async (showLoading = true) => {
     if (showLoading) setLoading(true);
     setError(null);
-    
+
     try {
       const response = await ticketService.getTicketList({
         statusId: filters.statusId,
@@ -92,7 +80,7 @@ const TicketScreen: React.FC = () => {
         sortOrder: filters.sortOrder,
         take: filters.take
       });
-      
+
       setTickets(response.Entities || []);
       setTotalCount(response.TotalCount || 0);
     } catch (err: any) {
@@ -112,11 +100,10 @@ const TicketScreen: React.FC = () => {
     setRefreshing(false);
   }, [filters]);
 
-  // Fetch ticket details when modal opens
   const fetchTicketDetails = async (ticketId: number) => {
     setDetailsLoading(true);
     setTicketDetails(null);
-    
+
     try {
       const response = await ticketService.getTicketDetails(ticketId);
       setTicketDetails(response);
@@ -129,27 +116,23 @@ const TicketScreen: React.FC = () => {
     }
   };
 
-  // Handle ticket press
   const handleTicketPress = async (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setModalVisible(true);
     await fetchTicketDetails(ticket.Id);
   };
 
-  // Close modal
   const handleCloseModal = () => {
     setModalVisible(false);
     setSelectedTicket(null);
     setTicketDetails(null);
   };
 
-  // Apply filters
   const applyFilters = () => {
     setShowFilters(false);
     fetchTickets();
   };
 
-  // Reset filters
   const resetFilters = () => {
     setFilters({
       statusId: '',
@@ -162,7 +145,6 @@ const TicketScreen: React.FC = () => {
     setShowFilters(false);
   };
 
-  // Filter tickets locally for search
   const filteredTickets = tickets.filter(ticket =>
     searchQuery === '' ||
     ticket.ProblemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -171,7 +153,6 @@ const TicketScreen: React.FC = () => {
     ticket.Id.toString().includes(searchQuery)
   );
 
-  // Render individual ticket item
   const renderTicketItem = ({ item }: { item: Ticket }) => (
     <TouchableOpacity
       style={styles.ticketCard}
@@ -184,9 +165,9 @@ const TicketScreen: React.FC = () => {
           <Text style={styles.statusText}>{item.StatusName}</Text>
         </View>
       </View>
-      
+
       <Text style={styles.problemName}>{item.ProblemName}</Text>
-      
+
       <View style={styles.ticketFooter}>
         <View style={styles.systemInfo}>
           <Text style={styles.systemIcon}>🏢</Text>
@@ -194,7 +175,7 @@ const TicketScreen: React.FC = () => {
         </View>
         <Text style={styles.creator}>👤 {item.CreatorUsername}</Text>
       </View>
-      
+
       <View style={styles.metaInfo}>
         <Text style={styles.date}>
           📅 Created: {new Date(item.DateCreated).toLocaleDateString()}
@@ -221,7 +202,7 @@ const TicketScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Tickets</Text>
@@ -229,8 +210,8 @@ const TicketScreen: React.FC = () => {
           <Text style={styles.headerSubtitle}>
             Total: {totalCount} tickets
           </Text>
-          <TouchableOpacity 
-            style={styles.filterButton} 
+          <TouchableOpacity
+            style={styles.filterButton}
             onPress={() => setShowFilters(!showFilters)}
           >
             <Text style={styles.filterButtonText}>
@@ -239,7 +220,7 @@ const TicketScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
-      
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
@@ -250,18 +231,18 @@ const TicketScreen: React.FC = () => {
           placeholderTextColor="#999"
         />
       </View>
-      
+
       {/* Filters Panel */}
       {showFilters && (
         <View style={styles.filtersPanel}>
           <Text style={styles.filtersTitle}>Filter Tickets</Text>
-          
+
           <View style={styles.filterGroup}>
             <Text style={styles.filterLabel}>Status</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={filters.statusId}
-                onValueChange={(value) => setFilters({...filters, statusId: value})}
+                onValueChange={(value) => setFilters({ ...filters, statusId: value })}
                 style={styles.picker}
               >
                 <Picker.Item label="All Statuses" value="" />
@@ -272,13 +253,13 @@ const TicketScreen: React.FC = () => {
               </Picker>
             </View>
           </View>
-          
+
           <View style={styles.filterGroup}>
             <Text style={styles.filterLabel}>System</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={filters.systemId}
-                onValueChange={(value) => setFilters({...filters, systemId: value})}
+                onValueChange={(value) => setFilters({ ...filters, systemId: value })}
                 style={styles.picker}
               >
                 <Picker.Item label="All Systems" value="" />
@@ -287,14 +268,14 @@ const TicketScreen: React.FC = () => {
               </Picker>
             </View>
           </View>
-          
+
           <View style={styles.filterGroup}>
             <Text style={styles.filterLabel}>Sort By</Text>
             <View style={styles.sortRow}>
               <View style={[styles.pickerContainer, { flex: 2, marginRight: 8 }]}>
                 <Picker
                   selectedValue={filters.sortBy}
-                  onValueChange={(value) => setFilters({...filters, sortBy: value})}
+                  onValueChange={(value) => setFilters({ ...filters, sortBy: value })}
                   style={styles.picker}
                 >
                   <Picker.Item label="Date Created" value="DateCreated" />
@@ -305,7 +286,7 @@ const TicketScreen: React.FC = () => {
               <View style={[styles.pickerContainer, { flex: 1 }]}>
                 <Picker
                   selectedValue={filters.sortOrder}
-                  onValueChange={(value) => setFilters({...filters, sortOrder: value})}
+                  onValueChange={(value) => setFilters({ ...filters, sortOrder: value })}
                   style={styles.picker}
                 >
                   <Picker.Item label="DESC" value="DESC" />
@@ -314,7 +295,7 @@ const TicketScreen: React.FC = () => {
               </View>
             </View>
           </View>
-          
+
           <View style={styles.filterActions}>
             <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
               <Text style={styles.resetButtonText}>Reset</Text>
@@ -325,7 +306,7 @@ const TicketScreen: React.FC = () => {
           </View>
         </View>
       )}
-      
+
       {/* Ticket List */}
       {error ? (
         <View style={styles.centerContainer}>
@@ -347,7 +328,7 @@ const TicketScreen: React.FC = () => {
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No tickets found</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.resetFiltersButton}
                 onPress={resetFilters}
               >
@@ -357,7 +338,7 @@ const TicketScreen: React.FC = () => {
           )}
         />
       )}
-      
+
       {/* Ticket Details Modal */}
       <Modal
         animationType="slide"
@@ -374,7 +355,7 @@ const TicketScreen: React.FC = () => {
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
           </View>
-          
+
           <ScrollView style={styles.modalContent}>
             {detailsLoading ? (
               <View style={styles.centerContainer}>
@@ -391,22 +372,22 @@ const TicketScreen: React.FC = () => {
                         <Text style={styles.detailStatusText}>{selectedTicket.StatusName}</Text>
                       </View>
                     </View>
-                    
+
                     <View style={styles.detailSection}>
                       <Text style={styles.sectionTitle}>Problem</Text>
                       <Text style={styles.detailText}>{selectedTicket.ProblemName}</Text>
                     </View>
-                    
+
                     <View style={styles.detailSection}>
                       <Text style={styles.sectionTitle}>System</Text>
                       <Text style={styles.detailText}>{selectedTicket.SystemName}</Text>
                     </View>
-                    
+
                     <View style={styles.detailSection}>
                       <Text style={styles.sectionTitle}>Created By</Text>
                       <Text style={styles.detailText}>{selectedTicket.CreatorUsername}</Text>
                     </View>
-                    
+
                     <View style={styles.detailSection}>
                       <Text style={styles.sectionTitle}>Timeline</Text>
                       <Text style={styles.detailText}>
@@ -431,7 +412,7 @@ const TicketScreen: React.FC = () => {
                         </Text>
                       )}
                     </View>
-                    
+
                     {/* Additional details from Retrieve endpoint */}
                     {ticketDetails && ticketDetails.Entity && (
                       <View style={styles.detailSection}>
@@ -441,7 +422,7 @@ const TicketScreen: React.FC = () => {
                         </Text>
                       </View>
                     )}
-                    
+
                     {/* Files Section */}
                     {ticketDetails && ticketDetails.Entity && ticketDetails.Entity.FilesPath && (
                       <View style={styles.detailSection}>
@@ -471,7 +452,7 @@ const TicketScreen: React.FC = () => {
               </>
             )}
           </ScrollView>
-          
+
           {/* Modal Footer */}
           <View style={styles.modalFooter}>
             {/* <TouchableOpacity style={styles.modalButton} onPress={handleCloseModal}>

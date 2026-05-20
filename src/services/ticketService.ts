@@ -1,5 +1,5 @@
 import { apiClient } from "./apiClient";
-import { Ticket, TicketListResponse, TicketDetailResponse } from '../types/ticketTypes';
+import { TicketListResponse, TicketDetailResponse, CreateTicketRequest, CreateTicketResponse } from '../types/ticket.types';
 
 export interface TicketListRequest {
   Take: number;
@@ -24,7 +24,7 @@ export interface FilterOptions {
 class TicketService {
   private defaultIncludeColumns = [
     "Id",
-    "StatusName", 
+    "StatusName",
     "TimeFlagColor",
     "SystemName",
     "ProblemName",
@@ -51,7 +51,7 @@ class TicketService {
         "/Services/Ticket/Ticket/List",
         requestData
       );
-      
+
       if (response.status === 200 && response.data) {
         return response.data;
       }
@@ -68,13 +68,30 @@ class TicketService {
         "/Services/Ticket/Ticket/Retrieve",
         { EntityId: entityId }
       );
-      
+
       if (response.status === 200 && response.data) {
         return response.data;
       }
       throw new Error('Failed to fetch ticket details');
     } catch (error) {
       console.error('Error fetching ticket details:', error);
+      throw error;
+    }
+  }
+
+  async createTicket(ticket: CreateTicketRequest): Promise<CreateTicketResponse> {
+    try {
+      const response = await apiClient.post<CreateTicketResponse>(
+        "/Services/Ticket/Ticket/Create",
+        { Entity: ticket }
+      );
+
+      if (response.status === 200 && response.data) {
+        return response.data;
+      }
+      throw new Error('Failed to create ticket');
+    } catch (error) {
+      console.error('Error creating ticket:', error);
       throw error;
     }
   }

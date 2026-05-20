@@ -28,9 +28,20 @@ export interface TicketListResponse {
 
 export interface TicketDetailResponse {
   Entity: Ticket;
-  // Add other details like actions, comments, etc. as needed
   Actions?: any[];
   Comments?: any[];
+}
+
+export interface CreateTicketRequest {
+  SystemId: string | number;
+  ProblemId: string | number;
+  Description: string;
+  StatusId: string | number;
+  LastActionId: string | number;
+}
+
+export interface CreateTicketResponse {
+  EntityId: number;
 }
 
 export interface ApiError {
