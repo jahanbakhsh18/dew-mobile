@@ -1,14 +1,9 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../contexts/AuthContext';
+import gs from '../globalStyles'
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useAuth();
@@ -19,8 +14,8 @@ const ProfileScreen: React.FC = () => {
       'Are you sure you want to logout?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
+        {
+          text: 'Logout',
           style: 'destructive',
           onPress: () => logout()
         },
@@ -32,12 +27,11 @@ const ProfileScreen: React.FC = () => {
     { icon: 'person', title: 'Account Settings', onPress: () => Alert.alert('Coming Soon', 'Account settings will be available soon') },
     { icon: 'notifications', title: 'Notifications', onPress: () => Alert.alert('Coming Soon', 'Notification settings will be available soon') },
     { icon: 'security', title: 'Security', onPress: () => Alert.alert('Coming Soon', 'Security settings will be available soon') },
-    { icon: 'help', title: 'Help & Support', onPress: () => Alert.alert('Coming Soon', 'Help center will be available soon') },
-    //{ icon: 'slideshow', title: 'Show Case', onPress: () => { Alert.alert("OK") } }
+    { icon: 'help', title: 'Help & Support', onPress: () => Alert.alert('Coming Soon', 'Help center will be available soon') }
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={gs.Layout.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
@@ -70,7 +64,7 @@ const ProfileScreen: React.FC = () => {
           <Icon name="logout" size={24} color="#FF3B30" />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-        
+
         <View style={styles.bottomPadding} />
       </ScrollView>
     </SafeAreaView>
@@ -78,10 +72,6 @@ const ProfileScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
   header: {
     alignItems: 'center',
     paddingTop: 60,
@@ -164,6 +154,4 @@ const styles = StyleSheet.create({
   },
 });
 
-import { ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 export default ProfileScreen;

@@ -4,7 +4,7 @@ import {
   RefreshControl, TextInput, Modal, ScrollView, Alert, StatusBar, Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import ticketService from '../services/ticketService';
+import ticketService from '../services/ticket.service';
 import { Ticket, TicketListResponse, TicketDetailResponse } from '../types/ticket.types';
 
 const TicketScreen: React.FC = () => {
@@ -93,7 +93,6 @@ const TicketScreen: React.FC = () => {
     }
   };
 
-  // Pull-to-refresh handler
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await fetchTickets(false);
@@ -189,7 +188,6 @@ const TicketScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
-  // Loading state
   if (loading && tickets.length === 0) {
     return (
       <View style={styles.centerContainer}>
@@ -203,7 +201,6 @@ const TicketScreen: React.FC = () => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Tickets</Text>
         <View style={styles.headerActions}>
@@ -221,7 +218,6 @@ const TicketScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -232,7 +228,6 @@ const TicketScreen: React.FC = () => {
         />
       </View>
 
-      {/* Filters Panel */}
       {showFilters && (
         <View style={styles.filtersPanel}>
           <Text style={styles.filtersTitle}>Filter Tickets</Text>
@@ -307,7 +302,6 @@ const TicketScreen: React.FC = () => {
         </View>
       )}
 
-      {/* Ticket List */}
       {error ? (
         <View style={styles.centerContainer}>
           <Text style={styles.errorText}>{error}</Text>
@@ -339,7 +333,6 @@ const TicketScreen: React.FC = () => {
         />
       )}
 
-      {/* Ticket Details Modal */}
       <Modal
         animationType="slide"
         transparent={false}
@@ -413,7 +406,6 @@ const TicketScreen: React.FC = () => {
                       )}
                     </View>
 
-                    {/* Additional details from Retrieve endpoint */}
                     {ticketDetails && ticketDetails.Entity && (
                       <View style={styles.detailSection}>
                         <Text style={styles.sectionTitle}>Description</Text>
@@ -423,7 +415,6 @@ const TicketScreen: React.FC = () => {
                       </View>
                     )}
 
-                    {/* Files Section */}
                     {ticketDetails && ticketDetails.Entity && ticketDetails.Entity.FilesPath && (
                       <View style={styles.detailSection}>
                         <Text style={styles.sectionTitle}>Attachments</Text>

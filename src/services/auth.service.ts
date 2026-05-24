@@ -99,7 +99,7 @@ class AuthService {
 
   async refreshCsrfToken(): Promise<void> {
     console.log("Calling refreshCsrfToken...");
-    apiClient.get("/"); //"Account/Login");
+    apiClient.get("/");
   }
 
   async fetchSerenityLookup<T,>(url: string): Promise<T[]> {

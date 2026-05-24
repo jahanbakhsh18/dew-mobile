@@ -75,7 +75,7 @@ apiClient.interceptors.response.use(async (response) => {
   (error: AxiosError) => {
     const [type, message] = getErrorMessage(error);
 
-    // if (type != "HTTP")
+    // if (type != "HTTP") 
     console.error(message);
 
     return Promise.reject({
