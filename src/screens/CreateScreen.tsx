@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image, 
+import {
+  View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image,
   ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard
 } from 'react-native';
 import { Dropdown } from '../components/Dropdown';
@@ -12,9 +12,7 @@ import gs from '../globalStyles';
 
 const CreateScreen: React.FC = () => {
   const [selectedSystem, setSelectedSystem] = useState<string | number>('');
-  const [selectedSystemData, setSelectedSystemData] = useState<any>(null);
   const [selectedProblem, setSelectedProblem] = useState<string | number>('');
-  const [selectedProblemData, setSelectedProblemData] = useState<any>(null);
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [isFileListExpanded, setIsFileListExpanded] = useState(true);
@@ -22,7 +20,7 @@ const CreateScreen: React.FC = () => {
   const { uploadedFiles, isUploading, uploadFile, removeFile, getFilesPathJson } = useFileUpload();
   const scrollViewRef = useRef<ScrollView>(null);
   const descriptionInputRef = useRef<TextInput>(null);
-  
+
   const fileListAnimation = new Animated.Value(0);
 
   useEffect(() => {
@@ -50,14 +48,11 @@ const CreateScreen: React.FC = () => {
 
   const handleSystemChange = (value: string | number, item?: any) => {
     setSelectedSystem(value);
-    setSelectedSystemData(item);
     setSelectedProblem('');
-    setSelectedProblemData(null);
   };
 
   const handleProblemChange = (value: string | number, item?: any) => {
     setSelectedProblem(value);
-    setSelectedProblemData(item);
   };
 
   const handlePickImage = async () => {
@@ -95,7 +90,7 @@ const CreateScreen: React.FC = () => {
 
   const handleSubmit = async () => {
     Keyboard.dismiss();
-    
+
     if (!selectedSystem) {
       Alert.alert('Error', 'Please select a system');
       return;
@@ -125,9 +120,7 @@ const CreateScreen: React.FC = () => {
 
       // Reset form
       setSelectedSystem('');
-      setSelectedSystemData(null);
       setSelectedProblem('');
-      setSelectedProblemData(null);
       setDescription('');
 
     } catch (error) {
@@ -178,20 +171,20 @@ const CreateScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={gs.Layout.safeArea}>
-      <StatusBar 
-        barStyle="dark-content" 
+      <StatusBar
+        barStyle="dark-content"
         backgroundColor="#f8fafc"
         translucent={false}
       />
-      
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoidingView} 
+
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <View style={styles.fixedHeader}>
           <Text style={styles.headerTitle}>Create New Ticket</Text>
-          
+
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
               <View style={[styles.progressFill, { width: `${getProgress()}%` }]} />
@@ -201,17 +194,17 @@ const CreateScreen: React.FC = () => {
                 {getProgress() === 100 ? '✓ Complete' : `${getProgress()}% Complete`}
               </Text>
               <Text style={styles.progressHint}>
-                {getProgress() === 100 
-                  ? 'Ready to submit!' 
-                  : getProgress() < 66 
-                    ? 'Please select system and problem' 
+                {getProgress() === 100
+                  ? 'Ready to submit!'
+                  : getProgress() < 66
+                    ? 'Please select system and problem'
                     : 'Almost there!'}
               </Text>
             </View>
           </View>
         </View>
 
-        <ScrollView 
+        <ScrollView
           ref={scrollViewRef}
           style={styles.container}
           contentContainerStyle={styles.scrollContent}
@@ -253,11 +246,10 @@ const CreateScreen: React.FC = () => {
             <View style={styles.inputContainer}>
               <View style={styles.labelRow}>
                 <Text style={styles.inputLabel}>Description</Text>
-                <Text style={styles.optionalLabel}>Optional</Text>
               </View>
               {description.length > 0 && (
-                <TouchableOpacity 
-                  onPress={() => setDescription('')} 
+                <TouchableOpacity
+                  onPress={() => setDescription('')}
                   style={styles.clearDescriptionButton}
                 >
                   <Text style={styles.clearDescriptionText}>Clear</Text>
@@ -275,7 +267,6 @@ const CreateScreen: React.FC = () => {
                 placeholderTextColor="#9ca3af"
                 textAlignVertical="top"
                 returnKeyType="done"
-                blurOnSubmit={true}
               />
               <Text style={styles.characterCount}>
                 {description.length} characters
@@ -289,8 +280,8 @@ const CreateScreen: React.FC = () => {
               </Text>
 
               <View style={styles.buttonRow}>
-                <TouchableOpacity 
-                  style={styles.attachmentButton} 
+                <TouchableOpacity
+                  style={styles.attachmentButton}
                   onPress={handlePickImage}
                   activeOpacity={0.7}
                 >
@@ -298,8 +289,8 @@ const CreateScreen: React.FC = () => {
                   <Text style={styles.attachmentButtonText}>Image</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                  style={styles.attachmentButton} 
+                <TouchableOpacity
+                  style={styles.attachmentButton}
                   onPress={handleTakePhoto}
                   activeOpacity={0.7}
                 >
@@ -307,8 +298,8 @@ const CreateScreen: React.FC = () => {
                   <Text style={styles.attachmentButtonText}>Camera</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                  style={styles.attachmentButton} 
+                <TouchableOpacity
+                  style={styles.attachmentButton}
                   onPress={handlePickDocument}
                   activeOpacity={0.7}
                 >
@@ -318,7 +309,7 @@ const CreateScreen: React.FC = () => {
               </View>
 
               {uploadedFiles.length > 0 && (
-                <Animated.View 
+                <Animated.View
                   style={[
                     styles.fileSection,
                     {
@@ -329,7 +320,7 @@ const CreateScreen: React.FC = () => {
                     }
                   ]}
                 >
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.fileSectionHeader}
                     onPress={() => setIsFileListExpanded(!isFileListExpanded)}
                     activeOpacity={0.7}
@@ -341,7 +332,7 @@ const CreateScreen: React.FC = () => {
                       {isFileListExpanded ? '▼' : '▶'}
                     </Text>
                   </TouchableOpacity>
-                  
+
                   {isFileListExpanded && (
                     <View style={styles.fileList}>
                       <FlatList
@@ -382,7 +373,7 @@ const CreateScreen: React.FC = () => {
         ]}>
           <TouchableOpacity
             style={[
-              styles.submitButton, 
+              styles.submitButton,
               submitting && styles.submitButtonDisabled,
               (getProgress() < 66) && styles.submitButtonIncomplete
             ]}

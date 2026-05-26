@@ -1,68 +1,39 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, 
+  View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator,
   RefreshControl, TextInput, Modal, ScrollView, Alert, StatusBar, Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import ticketService from '../services/ticket.service';
-import { Ticket, TicketListResponse, TicketDetailResponse } from '../types/ticket.types';
+import { Ticket } from '../types/ticket.types';
+import { Dropdown } from '../components/Dropdown';
 
 const TicketScreen: React.FC = () => {
-  // State for ticket list
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
-
-  // State for filters
-  const [showFilters, setShowFilters] = useState(false);
+  
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [filters, setFilters] = useState({
-    statusId: '',
-    systemId: '',
+    statusId: '' as string | number,
+    systemId: '' as string | number,
     problemId: '',
     sortBy: 'DateCreated',
     sortOrder: 'DESC' as 'ASC' | 'DESC',
     take: 100
   });
 
-  // State for modal
+  const [tempFilters, setTempFilters] = useState(filters);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [ticketDetails, setTicketDetails] = useState<any>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
-
-  // State for search
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchBarVisible, setIsSearchBarVisible] = useState(false);
+  const scrollY = useRef(0);
 
-  // Available options
-  const statusOptions = [
-    { id: '', name: 'All Statuses' },
-    { id: '1', name: 'Open' },
-    { id: '2', name: 'In Progress' },
-    { id: '3', name: 'Resolved' },
-    { id: '4', name: 'Closed' },
-  ];
-
-  const systemOptions = [
-    { id: '', name: 'All Systems' },
-    { id: '1', name: 'System 1' },
-    { id: '2', name: 'System 2' },
-    { id: '3', name: 'System 3' },
-  ];
-
-  const sortOptions = [
-    { value: 'DateCreated', label: 'Date Created' },
-    { value: 'ExpireDate', label: 'Expire Date' },
-    { value: 'StatusName', label: 'Status' },
-  ];
-
-  const sortOrderOptions = [
-    { value: 'DESC', label: 'Newest First' },
-    { value: 'ASC', label: 'Oldest First' },
-  ];
-
-  // Fetch tickets on component mount and when filters change
   useEffect(() => {
     fetchTickets();
   }, [filters.statusId, filters.systemId, filters.problemId, filters.sortBy, filters.sortOrder]);
@@ -73,8 +44,8 @@ const TicketScreen: React.FC = () => {
 
     try {
       const response = await ticketService.getTicketList({
-        statusId: filters.statusId,
-        systemId: filters.systemId,
+        statusId: filters.statusId.toString(),
+        systemId: filters.systemId.toString(),
         problemId: filters.problemId,
         sortBy: filters.sortBy,
         sortOrder: filters.sortOrder,
@@ -127,21 +98,36 @@ const TicketScreen: React.FC = () => {
     setTicketDetails(null);
   };
 
+  const openFilterModal = () => {
+    setTempFilters(filters);
+    setFilterModalVisible(true);
+  };
+
   const applyFilters = () => {
-    setShowFilters(false);
+    setFilters(tempFilters);
+    setFilterModalVisible(false);
     fetchTickets();
   };
 
   const resetFilters = () => {
-    setFilters({
+    const resetValues = {
       statusId: '',
       systemId: '',
       problemId: '',
       sortBy: 'DateCreated',
-      sortOrder: 'DESC',
+      sortOrder: 'DESC' as const,
       take: 100
-    });
-    setShowFilters(false);
+    };
+    setTempFilters(resetValues);
+    setFilters(resetValues);
+    setFilterModalVisible(false);
+  };
+
+  const handleScroll = (event: any) => {
+    const currentScrollY = event.nativeEvent.contentOffset.y;
+    scrollY.current = currentScrollY;
+    const threshold = 50;
+    setIsSearchBarVisible(currentScrollY > threshold);
   };
 
   const filteredTickets = tickets.filter(ticket =>
@@ -204,135 +190,147 @@ const TicketScreen: React.FC = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Tickets</Text>
         <View style={styles.headerActions}>
-          <Text style={styles.headerSubtitle}>
-            Total: {totalCount} tickets
-          </Text>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={() => setShowFilters(!showFilters)}
-          >
-            <Text style={styles.filterButtonText}>
-              {showFilters ? '▼' : '⚙️'} Filters
-            </Text>
-          </TouchableOpacity>
+          <Text style={styles.headerSubtitle}>Total: {totalCount} tickets</Text>
+          <View style={styles.iconButtons}>
+            <TouchableOpacity style={styles.iconButton} onPress={openFilterModal}>
+              <Text style={styles.iconButtonText}>⚙️</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Text style={styles.iconButtonText}>🔍</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by ID, problem, system, or creator... 🔍"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholderTextColor="#999"
-        />
-      </View>
-
-      {showFilters && (
-        <View style={styles.filtersPanel}>
-          <Text style={styles.filtersTitle}>Filter Tickets</Text>
-
-          <View style={styles.filterGroup}>
-            <Text style={styles.filterLabel}>Status</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={filters.statusId}
-                onValueChange={(value) => setFilters({ ...filters, statusId: value })}
-                style={styles.picker}
-              >
-                <Picker.Item label="All Statuses" value="" />
-                <Picker.Item label="Open" value="1" />
-                <Picker.Item label="In Progress" value="2" />
-                <Picker.Item label="Resolved" value="3" />
-                <Picker.Item label="Closed" value="4" />
-              </Picker>
-            </View>
-          </View>
-
-          <View style={styles.filterGroup}>
-            <Text style={styles.filterLabel}>System</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={filters.systemId}
-                onValueChange={(value) => setFilters({ ...filters, systemId: value })}
-                style={styles.picker}
-              >
-                <Picker.Item label="All Systems" value="" />
-                <Picker.Item label="System 1" value="1" />
-                <Picker.Item label="System 2" value="2" />
-              </Picker>
-            </View>
-          </View>
-
-          <View style={styles.filterGroup}>
-            <Text style={styles.filterLabel}>Sort By</Text>
-            <View style={styles.sortRow}>
-              <View style={[styles.pickerContainer, { flex: 2, marginRight: 8 }]}>
-                <Picker
-                  selectedValue={filters.sortBy}
-                  onValueChange={(value) => setFilters({ ...filters, sortBy: value })}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="Date Created" value="DateCreated" />
-                  <Picker.Item label="Expire Date" value="ExpireDate" />
-                  <Picker.Item label="Status" value="StatusName" />
-                </Picker>
-              </View>
-              <View style={[styles.pickerContainer, { flex: 1 }]}>
-                <Picker
-                  selectedValue={filters.sortOrder}
-                  onValueChange={(value) => setFilters({ ...filters, sortOrder: value })}
-                  style={styles.picker}
-                >
-                  <Picker.Item label="DESC" value="DESC" />
-                  <Picker.Item label="ASC" value="ASC" />
-                </Picker>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.filterActions}>
-            <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
-              <Text style={styles.resetButtonText}>Reset</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
-              <Text style={styles.applyButtonText}>Apply Filters</Text>
-            </TouchableOpacity>
-          </View>
+      {isSearchBarVisible && (
+        <View style={styles.stickySearchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by ID, problem, system, or creator..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#999"
+            autoFocus={false}
+          />
         </View>
       )}
 
-      {error ? (
-        <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={() => fetchTickets()}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredTickets}
-          renderItem={renderTicketItem}
-          keyExtractor={(item) => item.Id.toString()}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={() => (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No tickets found</Text>
-              <TouchableOpacity
-                style={styles.resetFiltersButton}
-                onPress={resetFilters}
-              >
-                <Text style={styles.resetFiltersText}>Reset Filters</Text>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={filterModalVisible}
+        onRequestClose={() => setFilterModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterModalContainer}>
+            <View style={styles.filterModalHeader}>
+              <Text style={styles.filterModalTitle}>Filter Tickets</Text>
+              <TouchableOpacity onPress={() => setFilterModalVisible(false)}>
+                <Text style={styles.closeModalText}>✕</Text>
               </TouchableOpacity>
             </View>
-          )}
-        />
-      )}
 
+            <ScrollView style={styles.filterModalContent}>
+              <View style={styles.filterGroup}>
+                <Dropdown
+                  cacheKey="workflow_status"
+                  url="DynamicData/Lookup.Workflow.Status"
+                  selectedValue={tempFilters.statusId}
+                  onValueChange={(value) => setTempFilters({ ...tempFilters, statusId: value })}
+                  label="Status"
+                  placeholder="Select a status"
+                  required={false}
+                  parentValue={''}
+                  parentFilterField={''}
+                />
+              </View>
+
+              <View style={styles.filterGroup}>
+                <Dropdown
+                  cacheKey="ticket_systems"
+                  url="DynamicData/Lookup.Ticket.System?v=639147054752297896"
+                  selectedValue={tempFilters.systemId}
+                  onValueChange={(value) => setTempFilters({ ...tempFilters, systemId: value })}
+                  label="System"
+                  placeholder="Select a system"
+                  required={false}
+                  parentValue={''}
+                  parentFilterField={''}
+                />
+              </View>
+
+              <View style={styles.filterGroup}>
+                <Text style={styles.filterLabel}>Sort By</Text>
+                <View style={styles.sortRow}>
+                  <View style={[styles.pickerContainer, { flex: 4, marginRight: 8 }]}>
+                    <Picker
+                      selectedValue={tempFilters.sortBy}
+                      onValueChange={(value) => setTempFilters({ ...tempFilters, sortBy: value })}
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="Date Created" value="DateCreated" />
+                      <Picker.Item label="Expire Date" value="ExpireDate" />
+                      <Picker.Item label="Status" value="StatusName" />
+                    </Picker>
+                  </View>
+                  <View style={[styles.pickerContainer, { flex: 3 }]}>
+                    <Picker
+                      selectedValue={tempFilters.sortOrder}
+                      onValueChange={(value) => setTempFilters({ ...tempFilters, sortOrder: value })}
+                      style={styles.picker}
+                    >
+                      <Picker.Item label="Newest" value="DESC" />
+                      <Picker.Item label="Oldest" value="ASC" />
+                    </Picker>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.filterModalActions}>
+              <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
+                <Text style={styles.resetButtonText}>Reset</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
+                <Text style={styles.applyButtonText}>Apply Filters</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View >
+      </Modal >
+
+      {/* Ticket List */}
+      {
+        error ? (
+          <View style={styles.centerContainer}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity style={styles.retryButton} onPress={() => fetchTickets()}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredTickets}
+            renderItem={renderTicketItem}
+            keyExtractor={(item) => item.Id.toString()}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            ListEmptyComponent={() => (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No tickets found</Text>
+                <TouchableOpacity style={styles.resetFiltersButton} onPress={resetFilters}>
+                  <Text style={styles.resetFiltersText}>Reset Filters</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        )
+      }
+
+      {/* Ticket Details Modal */}
       <Modal
         animationType="slide"
         transparent={false}
@@ -341,9 +339,7 @@ const TicketScreen: React.FC = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>
-              Ticket #{selectedTicket?.Id}
-            </Text>
+            <Text style={styles.modalTitle}>Ticket #{selectedTicket?.Id}</Text>
             <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>✕</Text>
             </TouchableOpacity>
@@ -425,9 +421,7 @@ const TicketScreen: React.FC = () => {
                               <TouchableOpacity
                                 key={index}
                                 style={styles.fileItem}
-                                onPress={() => {
-                                  Alert.alert('File', `Download: ${file.OriginalName}`);
-                                }}
+                                onPress={() => Alert.alert('File', `Download: ${file.OriginalName}`)}
                               >
                                 <Text style={styles.fileName}>📎 {file.OriginalName}</Text>
                               </TouchableOpacity>
@@ -444,25 +438,17 @@ const TicketScreen: React.FC = () => {
             )}
           </ScrollView>
 
-          {/* Modal Footer */}
           <View style={styles.modalFooter}>
-            {/* <TouchableOpacity style={styles.modalButton} onPress={handleCloseModal}>
-              <Text style={styles.modalButtonText}>Close</Text>
-            </TouchableOpacity> */}
             <TouchableOpacity style={[styles.modalButton, styles.primaryButton]}>
-              <Text style={[styles.modalButtonText, styles.primaryButtonText]}>
-                Add Comment
-              </Text>
+              <Text style={[styles.modalButtonText, styles.primaryButtonText]}>Add Comment</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.modalButton, styles.primaryButton]}>
-              <Text style={[styles.modalButtonText, styles.primaryButtonText]}>
-                Update Status
-              </Text>
+              <Text style={[styles.modalButtonText, styles.primaryButtonText]}>Update Status</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </View >
   );
 };
 
@@ -472,7 +458,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   header: {
-    backgroundColor: '#ffffffff',
+    backgroundColor: '#FFFFFF',
     padding: 20,
     paddingTop: Platform.OS === 'ios' ? 60 : 50,
     borderBottomWidth: 1,
@@ -493,16 +479,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  filterButton: {
-    paddingHorizontal: 12,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
+  iconButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
-  filterButtonText: {
-    fontSize: 14,
-    color: '#007AFF',
+  iconButton: {
+    paddingHorizontal: 8,
   },
-  searchContainer: {
+  iconButtonText: {
+    fontSize: 20,
+  },
+  stickySearchContainer: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -516,17 +504,37 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 16,
   },
-  filtersPanel: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+  // Filter Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  filtersTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 12,
+  filterModalContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: '90%',
+    maxHeight: '80%',
+    padding: 20,
+  },
+  filterModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  filterModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#333',
+  },
+  closeModalText: {
+    fontSize: 20,
+    color: '#666',
+  },
+  filterModalContent: {
+    maxHeight: '75%',
   },
   filterGroup: {
     marginBottom: 16,
@@ -549,10 +557,10 @@ const styles = StyleSheet.create({
   sortRow: {
     flexDirection: 'row',
   },
-  filterActions: {
+  filterModalActions: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 8,
+    marginTop: 20,
   },
   resetButton: {
     flex: 1,

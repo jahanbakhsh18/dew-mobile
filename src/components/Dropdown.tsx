@@ -117,13 +117,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         disabled={disabled || filteredOptions?.length === 0}
         activeOpacity={0.7}
       >
-        <Text
-          style={[
-            styles.dropdownButtonText,
-            !selectedValue && styles.placeholderText,
-          ]}
-          numberOfLines={1}
-        >
+        <Text style={[styles.dropdownButtonText, !selectedValue && styles.placeholderText]} numberOfLines={1}>
           {loading ? 'Loading...' : getSelectedLabel()}
         </Text>
         <Text style={styles.arrow}>{loading ? '⏳' : '▼'}</Text>
@@ -162,23 +156,13 @@ export const Dropdown: React.FC<DropdownProps> = ({
               keyExtractor={(item) => item.Id}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={[
-                    styles.optionItem,
-                    selectedValue === item.Id && styles.selectedOption,
-                  ]}
+                  style={[styles.optionItem, selectedValue === item.Id && styles.selectedOption]}
                   onPress={() => handleSelect(item)}
                 >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      selectedValue === item.Id && styles.selectedOptionText,
-                    ]}
-                  >
+                  <Text style={[styles.optionText, selectedValue === item.Id && styles.selectedOptionText]}>
                     {item.Name}
                   </Text>
-                  {selectedValue === item.Id && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
+                  {selectedValue === item.Id && (<Text style={styles.checkmark}>✓</Text>)}
                 </TouchableOpacity>
               )}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
