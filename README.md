@@ -1,7 +1,5 @@
 # 💧 Dew Mobile
 
-React Native client for the Dew problem management system. Catch issues as early as morning dew.
-
 This project showcases a modern mobile application built with React Native. It serves as the mobile client for the Dew problem handling system (see the [dew-web](https://github.com/jahanbakhsh18/Ticket.Web) repository). The app can also be run as a standalone demonstration on Android or iOS.
 
 ## 🧩 Features
