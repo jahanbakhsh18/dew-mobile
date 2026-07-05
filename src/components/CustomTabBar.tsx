@@ -1,14 +1,8 @@
 import React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Platform, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
+import { Colors, Spacing, Shadows, } from '../globalStyles';
 const { width } = Dimensions.get('window');
 
 interface TabBarProps {
@@ -19,7 +13,7 @@ interface TabBarProps {
 
 const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
-  
+
   // Tab configuration with icons
   const tabConfig = {
     Profile: { icon: 'person', label: 'Profile', position: 'left' },
@@ -48,7 +42,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
   const renderLeftTab = (route: any, index: number) => {
     const isFocused = state.index === state.routes.findIndex((r: any) => r.name === route.name);
     const config = tabConfig[route.name as keyof typeof tabConfig];
-    
+
     return (
       <TouchableOpacity
         key={route.key}
@@ -67,7 +61,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
           <Icon
             name={config.icon}
             size={24}
-            color={isFocused ? '#007AFF' : '#8E8E93'}
+            color={isFocused ? Colors.primary : Colors.secondary}
           />
         </View>
       </TouchableOpacity>
@@ -91,8 +85,8 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
         ]}>
           <Icon
             name={config.icon}
-            size={36} // Slightly larger for better visibility
-            color={isFocused ? '#007AFF' : '#FFFFFF'}
+            size={36}
+            color={isFocused ? Colors.primary : Colors.white}
           />
         </View>
       </TouchableOpacity>
@@ -102,7 +96,7 @@ const CustomTabBar: React.FC<TabBarProps> = ({ state, descriptors, navigation })
   return (
     <View style={[
       styles.container,
-      { paddingBottom: insets.bottom > 0 ? insets.bottom : 10 }
+      { paddingBottom: insets.bottom > 0 ? insets.bottom : Spacing.md }
     ]}>
       <View style={styles.tabBar}>
         {orderedRoutes.filter(route => route.name !== 'Create').map((route, index) => renderLeftTab(route, index))}
@@ -126,8 +120,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: 35,
     marginHorizontal: 70,
-    marginVertical: 5,
-    shadowColor: '#000',
+    marginVertical: Spacing.xs,
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 15,
@@ -142,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
   },
   profileTabItem: {
     marginRight: 40,
@@ -151,7 +145,7 @@ const styles = StyleSheet.create({
     marginLeft: 40,
   },
   iconContainer: {
-    padding: 10, // Slightly larger tap area
+    padding: Spacing.md, // Slightly larger tap area
     borderRadius: 30,
   },
   activeIconContainer: {
@@ -169,10 +163,10 @@ const styles = StyleSheet.create({
     width: 65,
     height: 65,
     borderRadius: 32.5,
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
@@ -181,8 +175,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.95)',
   },
   fabActiveIconContainer: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#007AFF',
+    backgroundColor: Colors.white,
+    borderColor: Colors.primary,
     borderWidth: 2,
   },
 });

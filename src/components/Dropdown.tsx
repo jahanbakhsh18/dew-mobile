@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Dimensions } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { Colors, Spacing, Typography, ModalStyles } from '../globalStyles';
 
 const { height } = Dimensions.get('window');
+const primaryLight = '#eef2ff';
 
 interface DropdownProps {
   cacheKey: string;
@@ -139,7 +141,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         onRequestClose={() => setIsModalVisible(false)}
       >
         <TouchableOpacity
-          style={styles.modalOverlay}
+          style={ModalStyles.overlay}
           activeOpacity={1}
           onPress={() => setIsModalVisible(false)}
         >
@@ -177,21 +179,21 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: Spacing.xl,
   },
   labelContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#374151',
+    color: Colors.text,
   },
   requiredStar: {
-    color: '#ef4444',
-    marginLeft: 4,
+    color: Colors.danger,
+    marginLeft: Spacing.xs,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -199,13 +201,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.white,
     borderWidth: 1.5,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderColor: Colors.border,
+    borderRadius: Spacing.md,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: 14,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
@@ -213,66 +215,60 @@ const styles = StyleSheet.create({
   },
   dropdownButtonText: {
     fontSize: 16,
-    color: '#111827',
+    color: Colors.text,
     flex: 1,
   },
   placeholderText: {
-    color: '#9ca3af',
+    color: Colors.secondary,
   },
   arrow: {
     fontSize: 14,
-    color: '#6b7280',
-    marginLeft: 8,
+    color: Colors.secondary,
+    marginLeft: Spacing.sm,
   },
   disabledButton: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: Colors.lightGray,
   },
   disabledContainer: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: Colors.lightGray,
     borderWidth: 1.5,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderColor: Colors.border,
+    borderRadius: Spacing.md,
     paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.lg,
   },
   disabledText: {
     fontSize: 14,
-    color: '#9ca3af',
+    color: Colors.secondary,
     textAlign: 'center',
   },
   errorBorder: {
-    borderColor: '#ef4444',
+    borderColor: Colors.danger,
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 6,
-    marginLeft: 4,
+    marginTop: Spacing.xs,
+    marginLeft: Spacing.xs,
   },
   errorText: {
     fontSize: 12,
-    color: '#ef4444',
+    color: Colors.danger,
     flex: 1,
   },
   retryText: {
     fontSize: 12,
-    color: '#6366f1',
+    color: Colors.primary,
     fontWeight: '500',
-    marginLeft: 8,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginLeft: Spacing.sm,
   },
   modalContent: {
-    backgroundColor: '#ffffff',
+    backgroundColor: Colors.white,
     borderRadius: 20,
     width: '85%',
     maxHeight: height * 0.7,
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -282,49 +278,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: Colors.border,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#1f2937',
+    color: Colors.text,
   },
   closeButton: {
     fontSize: 20,
-    color: '#6b7280',
+    color: Colors.secondary,
     fontWeight: '500',
-    padding: 4,
+    padding: Spacing.xs,
   },
   optionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.xl,
     paddingVertical: 14,
   },
   selectedOption: {
-    backgroundColor: '#eef2ff',
+    backgroundColor: primaryLight,
   },
   optionText: {
     fontSize: 16,
-    color: '#374151',
+    color: Colors.text,
     flex: 1,
   },
   selectedOptionText: {
-    color: '#6366f1',
+    color: Colors.primary,
     fontWeight: '500',
   },
   checkmark: {
     fontSize: 16,
-    color: '#6366f1',
-    marginLeft: 8,
+    color: Colors.primary,
+    marginLeft: Spacing.sm,
   },
   separator: {
     height: 1,
-    backgroundColor: '#f3f4f6',
-    marginLeft: 20,
+    backgroundColor: Colors.lightGray,
+    marginLeft: Spacing.xl,
   },
 });

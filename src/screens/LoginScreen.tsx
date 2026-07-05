@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, Switch } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { Layout, Typography, Card, Input, Buttons, Spacing } from '../globalStyles';
 
 const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -8,7 +9,7 @@ const LoginScreen: React.FC = () => {
   const [rememberBiometric, setRememberBiometric] = useState(true);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
-  const {
+  const { 
     refreshCsrfToken, loginWithPassword, loginWithBiometric,
     loading, error, checkBiometricAvailability, saveCredentialsForBiometric } = useAuth();
 
@@ -54,14 +55,16 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Please sign in to continue</Text>
+    <View style={Layout.loginContainer}>
+      <View style={Card.default}>
+        <Text style={Typography.headlineLarge}>Welcome Back</Text>
+        <Text style={[Typography.subtitle, { marginBottom: Spacing.xxxl }]}>
+          Please sign in to continue
+        </Text>
 
-        <View style={styles.form}>
+        <View style={{ gap: Spacing.md }}>
           <TextInput
-            style={styles.input}
+            style={Input.default}
             placeholder="Username"
             value={username}
             onChangeText={setUsername}
@@ -70,48 +73,47 @@ const LoginScreen: React.FC = () => {
           />
 
           <TextInput
-            style={styles.input}
+            style={Input.default}
             placeholder="Password"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
             autoCapitalize="none"
-            //keyboardType='number-pad'
             editable={!loading}
           />
 
           {biometricAvailable && (
-            <View style={styles.biometricCheckbox}>
+            <View style={[Layout.row, { marginVertical: Spacing.sm }]}>
               <Switch
                 value={rememberBiometric}
                 onValueChange={setRememberBiometric}
                 disabled={loading}
               />
-              <Text style={styles.checkboxLabel}>
+              <Text style={[Typography.body, { marginLeft: Spacing.md }]}>
                 Save credentials for fingerprint login
               </Text>
             </View>
           )}
 
           <TouchableOpacity
-            style={[styles.button, styles.loginButton]}
+            style={Buttons.primary}
             onPress={handlePasswordLogin}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.buttonText}>Login with Password</Text>
+              <Text style={Typography.buttonText}>Login with Password</Text>
             )}
           </TouchableOpacity>
 
           {biometricAvailable && (
             <TouchableOpacity
-              style={[styles.button, styles.biometricButton]}
+              style={Buttons.outline}
               onPress={handleBiometricLogin}
               disabled={loading}
             >
-              <Text style={styles.biometricButtonText}>
+              <Text style={Typography.buttonOutlineText}>
                 🖐️ Login with Fingerprint
               </Text>
             </TouchableOpacity>
@@ -121,83 +123,5 @@ const LoginScreen: React.FC = () => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-    color: '#333',
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
-    color: '#666',
-  },
-  form: {
-    gap: 15,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#fafafa',
-    color: '#666'
-  },
-  biometricCheckbox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-  checkboxLabel: {
-    marginLeft: 10,
-    fontSize: 14,
-    color: '#555',
-  },
-  button: {
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  loginButton: {
-    backgroundColor: '#007AFF',
-  },
-  biometricButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  biometricButtonText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
 
 export default LoginScreen;

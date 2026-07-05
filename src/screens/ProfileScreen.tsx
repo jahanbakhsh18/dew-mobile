@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../contexts/AuthContext';
-import gs from '../globalStyles'
+import { Colors, Spacing, Typography, Layout, Card, Buttons } from '../globalStyles';
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useAuth();
@@ -31,8 +31,8 @@ const ProfileScreen: React.FC = () => {
   ];
 
   return (
-    <SafeAreaView style={gs.Layout.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#f5f5f5" />
+    <SafeAreaView style={Layout.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
@@ -42,8 +42,8 @@ const ProfileScreen: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Text style={styles.userName}>{user?.username || 'User'}</Text>
-          <Text style={styles.userEmail}>user@example.com</Text>
+          <Text style={Typography.headline}>{user?.username || 'User'}</Text>
+          <Text style={Typography.caption}>user@example.com</Text>
         </View>
 
         <View style={styles.menuSection}>
@@ -52,16 +52,17 @@ const ProfileScreen: React.FC = () => {
               key={index}
               style={styles.menuItem}
               onPress={item.onPress}
+              activeOpacity={0.7}
             >
-              <Icon name={item.icon} size={24} color="#007AFF" />
+              <Icon name={item.icon} size={24} color={Colors.primary} />
               <Text style={styles.menuItemText}>{item.title}</Text>
-              <Icon name="chevron-right" size={20} color="#C6C6C8" />
+              <Icon name="chevron-right" size={20} color={Colors.secondary} />
             </TouchableOpacity>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Icon name="logout" size={24} color="#FF3B30" />
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.7}>
+          <Icon name="logout" size={24} color={Colors.danger} />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
@@ -74,24 +75,24 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 24,
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    marginBottom: 20,
+    paddingTop: Spacing.xxxl + Spacing.xl, // ~60
+    paddingBottom: Spacing.xxl,
+    backgroundColor: Colors.white,
+    borderBottomLeftRadius: Spacing.xxl,
+    borderBottomRightRadius: Spacing.xxl,
+    marginBottom: Spacing.xl,
   },
   avatarContainer: {
-    marginBottom: 16,
+    marginBottom: Spacing.lg,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#007AFF',
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: Colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -100,53 +101,43 @@ const styles = StyleSheet.create({
   avatarText: {
     fontSize: 48,
     fontWeight: '600',
-    color: '#fff',
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#1A1A1A',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    color: '#8E8E93',
+    color: Colors.white,
   },
   menuSection: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginTop: 8,
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.lg,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.sm,
     overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: Colors.lightGray,
   },
   menuItemText: {
     flex: 1,
     fontSize: 16,
-    color: '#1A1A1A',
-    marginLeft: 12,
+    color: Colors.text,
+    marginLeft: Spacing.md,
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginTop: 20,
-    paddingVertical: 14,
+    backgroundColor: Colors.white,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.xl,
+    paddingVertical: Spacing.md,
     borderRadius: 12,
-    gap: 8,
+    gap: Spacing.sm,
   },
   logoutText: {
     fontSize: 16,
-    color: '#FF3B30',
+    color: Colors.danger,
     fontWeight: '600',
   },
   bottomPadding: {

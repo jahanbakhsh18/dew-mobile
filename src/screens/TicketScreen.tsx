@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
+import { 
   View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator,
   RefreshControl, TextInput, Modal, ScrollView, Alert, StatusBar, Platform
 } from 'react-native';
@@ -8,6 +8,9 @@ import ticketService from '../services/ticket.service';
 import { Ticket } from '../types/ticket.types';
 import { Dropdown } from '../components/Dropdown';
 import LinearGradient from 'react-native-linear-gradient';
+import { 
+  Colors, Spacing, Typography, Layout, Card, Input, Badge, ModalStyles,
+  Header, EmptyState, Detail, Filter, Buttons, Shadows } from '../globalStyles';
 
 const TicketScreen: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -131,31 +134,31 @@ const TicketScreen: React.FC = () => {
     setIsSearchBarVisible(currentScrollY > threshold);
   };
 
-  const filteredTickets = tickets.filter(ticket =>
-    searchQuery === '' ||
-    ticket.ProblemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ticket.SystemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ticket.CreatorUsername?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    ticket.Id.toString().includes(searchQuery)
+  const filteredTickets = tickets.filter((ticket) =>
+      searchQuery === '' ||
+      ticket.ProblemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.SystemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.CreatorUsername?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.Id.toString().includes(searchQuery)
   );
 
   const renderTicketItem = ({ item }: { item: Ticket }) => (
     <TouchableOpacity
-      style={styles.ticketCard}
+      style={Card.ticket}
       onPress={() => handleTicketPress(item)}
       activeOpacity={0.7}
     >
       <View style={styles.ticketHeader}>
         <Text style={styles.ticketId}>Ticket #{item.Id}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: item.TimeFlagColor || '#9E9E9E' }]}>
-          <Text style={styles.statusText}>{item.StatusName}</Text>
+        <View style={[Badge.default, { backgroundColor: item.TimeFlagColor || Colors.secondary }]}>
+          <Text style={Badge.text}>{item.StatusName}</Text>
         </View>
       </View>
 
       <Text style={styles.problemName}>{item.ProblemName}</Text>
 
       <View style={styles.ticketFooter}>
-        <View style={styles.systemInfo}>
+        <View style={Layout.row}>
           <Text style={styles.systemIcon}>🏢</Text>
           <Text style={styles.systemName}>{item.SystemName}</Text>
         </View>
@@ -177,43 +180,40 @@ const TicketScreen: React.FC = () => {
 
   if (loading && tickets.length === 0) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Loading tickets...</Text>
+      <View style={Layout.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={[Typography.body, { marginTop: Spacing.md }]}>Loading tickets...</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#007AFF" />
-
+    <View style={Layout.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.primary} />
       <LinearGradient
-        colors={['#007AFF', '#F3F4F6', '#F9FAFC', '#FFFFFF']}
+        colors={[Colors.primary, '#F3F4F6', '#F9FAFC', Colors.white]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0.3, y: 1 }}
         style={styles.gradient}
       >
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Tickets</Text>
-          {/* <View style={styles.headerActions}> */}
-          <Text style={styles.headerSubtitle}>Total: {totalCount} tickets</Text>
-          <View style={styles.iconButtons}>
-            <TouchableOpacity style={styles.iconButton} onPress={openFilterModal}>
-              <Text style={styles.iconButtonText}>🔍</Text>
+        <View style={Header.container}>
+          <Text style={Header.title}>Tickets</Text>
+          <View style={Header.actions}>
+            <Text style={Header.subtitle}>Total: {totalCount}</Text>
+            <TouchableOpacity onPress={openFilterModal}>
+              <Text style={styles.filterIcon}>🔍</Text>
             </TouchableOpacity>
           </View>
-          {/* </View> */}
         </View>
 
         {isSearchBarVisible && (
           <View style={styles.stickySearchContainer}>
             <TextInput
-              style={styles.searchInput}
+              style={Input.search}
               placeholder="Search by ID, problem, system, or creator..."
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor="#999"
+              placeholderTextColor={Colors.secondary}
               autoFocus={false}
             />
           </View>
@@ -225,17 +225,17 @@ const TicketScreen: React.FC = () => {
           visible={filterModalVisible}
           onRequestClose={() => setFilterModalVisible(false)}
         >
-          <View style={styles.modalOverlay}>
-            <View style={styles.filterModalContainer}>
-              <View style={styles.filterModalHeader}>
-                <Text style={styles.filterModalTitle}>Filter Tickets</Text>
-                <TouchableOpacity onPress={() => setFilterModalVisible(false)}>
-                  <Text style={styles.closeModalText}>✕</Text>
+          <View style={ModalStyles.overlay}>
+            <View style={ModalStyles.container}>
+              <View style={ModalStyles.header}>
+                <Text style={Typography.headline}>Filter Tickets</Text>
+                <TouchableOpacity onPress={() => setFilterModalVisible(false)} style={ModalStyles.closeButton}>
+                  <Text style={ModalStyles.closeText}>✕</Text>
                 </TouchableOpacity>
               </View>
 
               <ScrollView style={styles.filterModalContent}>
-                <View style={styles.filterGroup}>
+                <View style={Filter.group}>
                   <Dropdown
                     cacheKey="workflow_status"
                     url="DynamicData/Lookup.Workflow.Status"
@@ -249,7 +249,7 @@ const TicketScreen: React.FC = () => {
                   />
                 </View>
 
-                <View style={styles.filterGroup}>
+                <View style={Filter.group}>
                   <Dropdown
                     cacheKey="ticket_systems"
                     url="DynamicData/Lookup.Ticket.System?v=639147054752297896"
@@ -263,25 +263,25 @@ const TicketScreen: React.FC = () => {
                   />
                 </View>
 
-                <View style={styles.filterGroup}>
-                  <Text style={styles.filterLabel}>Sort By</Text>
-                  <View style={styles.sortRow}>
-                    <View style={[styles.pickerContainer, { flex: 4, marginRight: 8 }]}>
+                <View style={Filter.group}>
+                  <Text style={Filter.label}>Sort By</Text>
+                  <View style={Filter.sortRow}>
+                    <View style={[Filter.pickerContainer, { flex: 4, marginRight: Spacing.sm }]}>
                       <Picker
                         selectedValue={tempFilters.sortBy}
                         onValueChange={(value) => setTempFilters({ ...tempFilters, sortBy: value })}
-                        style={styles.picker}
+                        style={Filter.picker}
                       >
                         <Picker.Item label="Date Created" value="DateCreated" />
                         <Picker.Item label="Expire Date" value="ExpireDate" />
                         <Picker.Item label="Status" value="StatusName" />
                       </Picker>
                     </View>
-                    <View style={[styles.pickerContainer, { flex: 3 }]}>
+                    <View style={[Filter.pickerContainer, { flex: 3 }]}>
                       <Picker
                         selectedValue={tempFilters.sortOrder}
                         onValueChange={(value) => setTempFilters({ ...tempFilters, sortOrder: value })}
-                        style={styles.picker}
+                        style={Filter.picker}
                       >
                         <Picker.Item label="Newest" value="DESC" />
                         <Picker.Item label="Oldest" value="ASC" />
@@ -291,48 +291,48 @@ const TicketScreen: React.FC = () => {
                 </View>
               </ScrollView>
 
-              <View style={styles.filterModalActions}>
-                <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
-                  <Text style={styles.resetButtonText}>Reset</Text>
+              <View style={Filter.actions}>
+                <TouchableOpacity style={Filter.resetButton} onPress={resetFilters}>
+                  <Text style={Filter.resetButtonText}>Reset</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.applyButton} onPress={applyFilters}>
-                  <Text style={styles.applyButtonText}>Apply Filters</Text>
+                <TouchableOpacity style={Filter.applyButton} onPress={applyFilters}>
+                  <Text style={Filter.applyButtonText}>Apply Filters</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </View >
-        </Modal >
+          </View>
+        </Modal>
 
         {/* Ticket List */}
-        {
-          error ? (
-            <View style={styles.centerContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity style={styles.retryButton} onPress={() => fetchTickets()}>
-                <Text style={styles.retryButtonText}>Retry</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <FlatList
-              data={filteredTickets}
-              renderItem={renderTicketItem}
-              keyExtractor={(item) => item.Id.toString()}
-              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContent}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              ListEmptyComponent={() => (
-                <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>No tickets found</Text>
-                  <TouchableOpacity style={styles.resetFiltersButton} onPress={resetFilters}>
-                    <Text style={styles.resetFiltersText}>Reset Filters</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          )
-        }
+        {error ? (
+          <View style={Layout.centered}>
+            <Text style={[Typography.body, { color: Colors.danger, marginBottom: Spacing.md }]}>
+              {error}
+            </Text>
+            <TouchableOpacity style={Buttons.primary} onPress={() => fetchTickets()}>
+              <Text style={Typography.buttonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <FlatList
+            data={filteredTickets}
+            renderItem={renderTicketItem}
+            keyExtractor={(item) => item.Id.toString()}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+            ListEmptyComponent={() => (
+              <View style={EmptyState.container}>
+                <Text style={EmptyState.text}>No tickets found</Text>
+                <TouchableOpacity style={EmptyState.actionButton} onPress={resetFilters}>
+                  <Text style={EmptyState.actionText}>Reset Filters</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+        )}
 
         {/* Ticket Details Modal */}
         <Modal
@@ -342,478 +342,209 @@ const TicketScreen: React.FC = () => {
           onRequestClose={handleCloseModal}
         >
           <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Ticket #{selectedTicket?.Id}</Text>
-              <TouchableOpacity onPress={handleCloseModal} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>✕</Text>
+            <View style={ModalStyles.header}>
+              <Text style={[Typography.headline, { fontSize: 20 }]}>Ticket #{selectedTicket?.Id}</Text>
+              <TouchableOpacity onPress={handleCloseModal} style={ModalStyles.closeButton}>
+                <Text style={ModalStyles.closeText}>✕</Text>
               </TouchableOpacity>
             </View>
 
             <ScrollView style={styles.modalContent}>
               {detailsLoading ? (
-                <View style={styles.centerContainer}>
-                  <ActivityIndicator size="large" color="#007AFF" />
-                  <Text style={styles.loadingText}>Loading details...</Text>
+                <View style={Layout.centered}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                  <Text style={[Typography.body, { marginTop: Spacing.md }]}>Loading details...</Text>
                 </View>
               ) : (
-                <>
-                  {selectedTicket && (
-                    <>
-                      <View style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Status</Text>
-                        <View style={[styles.detailStatusBadge, { backgroundColor: selectedTicket.TimeFlagColor || '#9E9E9E' }]}>
-                          <Text style={styles.detailStatusText}>{selectedTicket.StatusName}</Text>
-                        </View>
+                selectedTicket && (
+                  <>
+                    <View style={Detail.section}>
+                      <Text style={Detail.sectionTitle}>Status</Text>
+                      <View style={[Badge.default, { backgroundColor: selectedTicket.TimeFlagColor || Colors.secondary }]}>
+                        <Text style={Badge.text}>{selectedTicket.StatusName}</Text>
                       </View>
+                    </View>
 
-                      <View style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Problem</Text>
-                        <Text style={styles.detailText}>{selectedTicket.ProblemName}</Text>
-                      </View>
+                    <View style={Detail.section}>
+                      <Text style={Detail.sectionTitle}>Problem</Text>
+                      <Text style={Detail.text}>{selectedTicket.ProblemName}</Text>
+                    </View>
 
-                      <View style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>System</Text>
-                        <Text style={styles.detailText}>{selectedTicket.SystemName}</Text>
-                      </View>
+                    <View style={Detail.section}>
+                      <Text style={Detail.sectionTitle}>System</Text>
+                      <Text style={Detail.text}>{selectedTicket.SystemName}</Text>
+                    </View>
 
-                      <View style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Created By</Text>
-                        <Text style={styles.detailText}>{selectedTicket.CreatorUsername}</Text>
-                      </View>
+                    <View style={Detail.section}>
+                      <Text style={Detail.sectionTitle}>Created By</Text>
+                      <Text style={Detail.text}>{selectedTicket.CreatorUsername}</Text>
+                    </View>
 
-                      <View style={styles.detailSection}>
-                        <Text style={styles.sectionTitle}>Timeline</Text>
-                        <Text style={styles.detailText}>
-                          🕐 Created: {new Date(selectedTicket.DateCreated).toLocaleString()}
+                    <View style={Detail.section}>
+                      <Text style={Detail.sectionTitle}>Timeline</Text>
+                      <Text style={Detail.text}>
+                        🕐 Created: {new Date(selectedTicket.DateCreated).toLocaleString()}
+                      </Text>
+                      {selectedTicket.DateUpdated && (
+                        <Text style={Detail.text}>
+                          🔄 Updated: {new Date(selectedTicket.DateUpdated).toLocaleString()}
                         </Text>
-                        {selectedTicket.DateUpdated && (
-                          <Text style={styles.detailText}>
-                            🔄 Updated: {new Date(selectedTicket.DateUpdated).toLocaleString()}
-                          </Text>
-                        )}
-                        {selectedTicket.ExpireDate && (
-                          <Text style={[
-                            styles.detailText,
-                            new Date(selectedTicket.ExpireDate) < new Date() && styles.expiredText
-                          ]}>
-                            ⏰ Expires: {new Date(selectedTicket.ExpireDate).toLocaleString()}
-                          </Text>
-                        )}
-                        {selectedTicket.DateClosed && (
-                          <Text style={styles.detailText}>
-                            ✅ Closed: {new Date(selectedTicket.DateClosed).toLocaleString()}
-                          </Text>
-                        )}
-                      </View>
+                      )}
+                      {selectedTicket.ExpireDate && (
+                        <Text
+                          style={[
+                            Detail.text,
+                            new Date(selectedTicket.ExpireDate) < new Date() && Detail.expiredText,
+                          ]}
+                        >
+                          ⏰ Expires: {new Date(selectedTicket.ExpireDate).toLocaleString()}
+                        </Text>
+                      )}
+                      {selectedTicket.DateClosed && (
+                        <Text style={Detail.text}>
+                          ✅ Closed: {new Date(selectedTicket.DateClosed).toLocaleString()}
+                        </Text>
+                      )}
+                    </View>
 
-                      {ticketDetails && ticketDetails.Entity && (
-                        <View style={styles.detailSection}>
-                          <Text style={styles.sectionTitle}>Description</Text>
-                          <Text style={styles.detailText}>
+                    {ticketDetails?.Entity && (
+                      <>
+                        <View style={Detail.section}>
+                          <Text style={Detail.sectionTitle}>Description</Text>
+                          <Text style={Detail.text}>
                             {ticketDetails.Entity.Description || 'No description available'}
                           </Text>
                         </View>
-                      )}
 
-                      {ticketDetails && ticketDetails.Entity && ticketDetails.Entity.FilesPath && (
-                        <View style={styles.detailSection}>
-                          <Text style={styles.sectionTitle}>Attachments</Text>
-                          {(() => {
-                            try {
-                              const files = JSON.parse(ticketDetails.Entity.FilesPath);
-                              return files.map((file: any, index: number) => (
-                                <TouchableOpacity
-                                  key={index}
-                                  style={styles.fileItem}
-                                  onPress={() => Alert.alert('File', `Download: ${file.OriginalName}`)}
-                                >
-                                  <Text style={styles.fileName}>📎 {file.OriginalName}</Text>
-                                </TouchableOpacity>
-                              ));
-                            } catch {
-                              return <Text style={styles.detailText}>No attachments</Text>;
-                            }
-                          })()}
-                        </View>
-                      )}
-                    </>
-                  )}
-                </>
+                        {ticketDetails.Entity.FilesPath && (
+                          <View style={Detail.section}>
+                            <Text style={Detail.sectionTitle}>Attachments</Text>
+                            {(() => {
+                              try {
+                                const files = JSON.parse(ticketDetails.Entity.FilesPath);
+                                return files.map((file: any, index: number) => (
+                                  <TouchableOpacity
+                                    key={index}
+                                    style={styles.fileItem}
+                                    onPress={() => Alert.alert('File', `Download: ${file.OriginalName}`)}
+                                  >
+                                    <Text style={styles.fileName}>📎 {file.OriginalName}</Text>
+                                  </TouchableOpacity>
+                                ));
+                              } catch {
+                                return <Text style={Detail.text}>No attachments</Text>;
+                              }
+                            })()}
+                          </View>
+                        )}
+                      </>
+                    )}
+                  </>
+                )
               )}
             </ScrollView>
 
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={[styles.modalButton, styles.primaryButton]}>
-                <Text style={[styles.modalButtonText, styles.primaryButtonText]}>Add Comment</Text>
+            <View style={ModalStyles.footer}>
+              <TouchableOpacity style={[ModalStyles.button, ModalStyles.primaryButton]}>
+                <Text style={[ModalStyles.buttonText, ModalStyles.primaryButtonText]}>Add Comment</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalButton, styles.primaryButton]}>
-                <Text style={[styles.modalButtonText, styles.primaryButtonText]}>Update Status</Text>
+              <TouchableOpacity style={[ModalStyles.button, ModalStyles.primaryButton]}>
+                <Text style={[ModalStyles.buttonText, ModalStyles.primaryButtonText]}>Update Status</Text>
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
-
       </LinearGradient>
-    </View >
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    //backgroundColor: '#F5F5F5',
-  },
   gradient: {
     flex: 1,
   },
-  header: {
-    //backgroundColor: '#FFFFFF',
-    padding: 20,
-    paddingTop: Platform.OS === 'ios' ? 60 : 50,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  iconButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  iconButton: {
-    paddingHorizontal: 8,
-  },
-  iconButtonText: {
-    fontSize: 20,
-  },
   stickySearchContainer: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: Colors.border,
   },
-  searchInput: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  // Filter Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterModalContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    width: '90%',
-    maxHeight: '80%',
-    padding: 20,
-  },
-  filterModalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  filterModalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  closeModalText: {
+  filterIcon: {
     fontSize: 20,
-    color: '#666',
+    paddingHorizontal: Spacing.sm,
   },
   filterModalContent: {
     maxHeight: '75%',
-  },
-  filterGroup: {
-    marginBottom: 16,
-  },
-  filterLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: '#666',
-  },
-  pickerContainer: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  picker: {
-    height: 50,
-  },
-  sortRow: {
-    flexDirection: 'row',
-  },
-  filterModalActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  resetButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#F0F0F0',
-    alignItems: 'center',
-  },
-  resetButtonText: {
-    color: '#666',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  applyButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: '#007AFF',
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  listContent: {
-    padding: 16,
-  },
-  ticketCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   ticketHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   ticketId: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  statusText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '600',
+    color: Colors.primary,
   },
   problemName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    color: Colors.text,
+    marginBottom: Spacing.md,
   },
   ticketFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  systemInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
   systemIcon: {
     fontSize: 14,
-    marginRight: 4,
+    marginRight: Spacing.xs,
   },
   systemName: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.secondary,
   },
   creator: {
     fontSize: 13,
-    color: '#666',
+    color: Colors.secondary,
   },
   metaInfo: {
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingTop: 8,
+    borderTopColor: Colors.lightGray,
+    paddingTop: Spacing.sm,
   },
   date: {
     fontSize: 11,
-    color: '#999',
+    color: Colors.secondary,
     marginBottom: 2,
   },
   expired: {
-    color: '#FF6B6B',
+    color: Colors.danger,
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    color: '#666',
-  },
-  errorText: {
-    color: '#FF3B30',
-    fontSize: 16,
-    marginBottom: 16,
-  },
-  retryButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  retryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-  },
-  emptyContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: '#999',
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  resetFiltersButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 8,
-  },
-  resetFiltersText: {
-    color: '#007AFF',
-    fontSize: 14,
+  listContent: {
+    padding: Spacing.lg,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-    backgroundColor: '#FFFFFF',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 20,
-    color: '#666',
+    backgroundColor: Colors.white,
   },
   modalContent: {
     flex: 1,
-    padding: 20,
-  },
-  detailSection: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  detailText: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 4,
-  },
-  expiredText: {
-    color: '#FF6B6B',
-    fontWeight: '500',
-  },
-  detailStatusBadge: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  detailStatusText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
+    padding: Spacing.xl,
   },
   fileItem: {
-    backgroundColor: '#F5F5F5',
-    padding: 12,
+    backgroundColor: Colors.lightGray,
+    padding: Spacing.md,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   fileName: {
     fontSize: 14,
-    color: '#007AFF',
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
-    gap: 12,
-  },
-  modalButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: '#F0F0F0',
-    alignItems: 'center',
-  },
-  primaryButton: {
-    backgroundColor: '#007AFF',
-  },
-  modalButtonText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  primaryButtonText: {
-    color: '#FFFFFF',
+    color: Colors.primary,
   },
 });
 

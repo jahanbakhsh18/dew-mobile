@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, TextInput, TextInputProps, Animated, StyleSheet, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { Colors, Spacing, Typography } from '../globalStyles';
 
 interface FloatingLabelInputProps {
   label: string;
@@ -92,7 +93,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
 
   const borderGradientColor = borderAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [error ? '#ff4444' : 'rgba(224, 224, 224, 1)'],
+    outputRange: [error ? Colors.danger : Colors.border],
   });
 
   const shadowOpacity = borderAnimation.interpolate({
@@ -114,7 +115,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
         style={[
           styles.inputWrapper,
           {
-            borderColor: error ? '#ff4444' : borderGradientColor,
+            borderColor: error ? Colors.danger : borderGradientColor,
             borderWidth: 2,
             shadowOpacity: shadowOpacity,
             shadowRadius: 8,
@@ -123,13 +124,13 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
               inputRange: [0, 1],
               outputRange: [0, 8],
             }),
-            backgroundColor: '#fff',
+            backgroundColor: Colors.white,
           },
         ]}
       >
         {leftIcon && (
           <View style={styles.leftIconContainer}>
-            <Icon name={leftIcon} size={20} color={isFocused ? '#007AFF' : '#999'} />
+            <Icon name={leftIcon} size={20} color={isFocused ? Colors.primary : Colors.secondary} />
           </View>
         )}
 
@@ -137,7 +138,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
           style={[
             styles.label,
             {
-              left: leftIcon ? 44 : 16,
+              left: leftIcon ? 44 : Spacing.lg,
               top: animatedLabel.interpolate({
                 inputRange: [0, 1],
                 outputRange: [14, -8],
@@ -148,7 +149,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
               }),
               color: animatedLabel.interpolate({
                 inputRange: [0, 1],
-                outputRange: [error ? '#ff4444' : '#999', error ? '#ff4444' : '#007AFF'],
+                outputRange: [error ? Colors.danger : Colors.secondary, error ? Colors.danger : Colors.primary],
               }),
             },
           ]}
@@ -159,7 +160,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
         <TextInput
           style={[
             styles.input,
-            { paddingLeft: leftIcon ? 44 : 16 }
+            { paddingLeft: leftIcon ? 44 : Spacing.lg }
           ]}
           value={value}
           onChangeText={onChangeText}
@@ -176,7 +177,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
             style={styles.rightIconContainer}
             onPress={onRightIconPress || (() => { })}
           >
-            <Icon name={rightIcon} size={20} color={isFocused ? '#007AFF' : '#999'} />
+            <Icon name={rightIcon} size={20} color={isFocused ? Colors.primary : Colors.secondary} />
           </TouchableOpacity>
         )}
 
@@ -188,7 +189,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
             <Icon
               name={showPassword ? 'eye-off' : 'eye'}
               size={20}
-              color={isFocused ? '#007AFF' : '#999'}
+              color={isFocused ? Colors.primary : Colors.secondary}
             />
           </TouchableOpacity>
         )}
@@ -196,7 +197,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
 
       {error && (
         <Animated.View style={styles.errorContainer}>
-          <Icon name="alert-circle" size={12} color="#ff4444" />
+          <Icon name="alert-circle" size={12} color={Colors.danger} />
           <Animated.Text style={styles.errorText}>
             {error}
           </Animated.Text>
@@ -208,58 +209,58 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 12,
-    marginHorizontal: 16,
+    marginVertical: Spacing.md,
+    marginHorizontal: Spacing.lg,
   },
   inputWrapper: {
     position: 'relative',
     width: '100%',
-    borderRadius: 16,
-    shadowColor: '#007AFF',
+    borderRadius: Spacing.lg,
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
     elevation: 0,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
   },
   input: {
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.lg,
     paddingTop: 18,
     paddingBottom: 10,
     fontSize: 16,
     backgroundColor: 'transparent',
-    borderRadius: 16,
-    color: '#333',
+    borderRadius: Spacing.lg,
+    color: Colors.text,
     minHeight: 56,
   },
   label: {
     position: 'absolute',
     backgroundColor: 'transparent',
-    paddingHorizontal: 4,
-    color: '#999',
+    paddingHorizontal: Spacing.xs,
+    color: Colors.secondary,
     zIndex: 1,
   },
   leftIconContainer: {
     position: 'absolute',
-    left: 16,
+    left: Spacing.lg,
     top: 18,
     zIndex: 2,
   },
   rightIconContainer: {
     position: 'absolute',
-    right: 16,
+    right: Spacing.lg,
     top: 18,
     zIndex: 2,
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
-    marginLeft: 12,
-    gap: 4,
+    marginTop: Spacing.xs,
+    marginLeft: Spacing.md,
+    gap: Spacing.xs,
   },
   errorText: {
     fontSize: 12,
-    color: '#ff4444',
+    color: Colors.danger,
   },
 });
 
