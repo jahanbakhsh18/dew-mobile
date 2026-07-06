@@ -1,21 +1,23 @@
-const SERVER_IP = '10.238.249.122';
+import { SERVER_IP, DEV_API_PORT, PROD_API_PORT } from '@env';
 
 // Development vs Production configuration
 const config = {
   development: {
-    API_URL: `http://${SERVER_IP}:5000`,  // HTTP for dev
+    API_URL: `http://${SERVER_IP}:${DEV_API_PORT}`,  // HTTP for dev
     USE_HTTPS: false,
   },
   production: {
-    API_URL: `https://${SERVER_IP}:5001`, // HTTPS for prod
+    API_URL: `https://${SERVER_IP}:${PROD_API_PORT}`, // HTTPS for prod
     USE_HTTPS: true,
   }
 };
 
-// __DEV__ is a React Native global that's true in development
 const environment = __DEV__ ? 'development' : 'production';
 
-console.log("config.js -> DEV:", __DEV__, environment);
+console.log(
+  "config.js -> DEV:"+__DEV__, 
+  __DEV__ == true ? config.development.API_URL: config.production.API_URL
+);
 
 export const API_URL = config[environment].API_URL;
 export const USE_HTTPS = config[environment].USE_HTTPS;

@@ -8,7 +8,8 @@ import ticketService from '../services/ticket.service';
 import FileUploadService from '../services/file-upload.service';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Spacing, Typography, Layout, Input, Header, Buttons, Card } from '../globalStyles';
+import { Colors, Spacing, Typography, Layout } from '../globalStyles';
+import { API_URL } from '../config'
 
 const CreateScreen: React.FC = () => {
   const [selectedSystem, setSelectedSystem] = useState<string | number>('');
@@ -141,7 +142,7 @@ const CreateScreen: React.FC = () => {
     <View style={styles.fileItem}>
       {item.temporaryFile?.IsImage ? (
         <Image
-          source={{ uri: item.temporaryFile?.TemporaryFile ? `http://10.208.140.1:5000/${item.temporaryFile.TemporaryFile}` : undefined }}
+          source={{ uri: item.temporaryFile?.TemporaryFile ? `${API_URL}/${item.temporaryFile.TemporaryFile}` : undefined }}
           style={styles.filePreview}
         />
       ) : (
