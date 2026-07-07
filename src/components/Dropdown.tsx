@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, Dimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors, Spacing, Typography, ModalStyles } from '../globalStyles';
+import { Colors, Spacing, ModalStyles } from '../globalStyles';
 
 const { height } = Dimensions.get('window');
-const primaryLight = '#eef2ff';
 
 interface DropdownProps {
   cacheKey: string;
@@ -50,15 +50,17 @@ export const Dropdown: React.FC<DropdownProps> = ({
   useEffect(() => {
     if (!isAuthenticated) return;
 
+    const options = dropdownData[cacheKey] || [];
+
     if (parentValue && parentFilterField) {
-      const filtered = dropdownData[cacheKey].filter((item: any) => item[parentFilterField] === parentValue);
+      const filtered = options.filter((item: any) => item[parentFilterField] === parentValue);
       setFilteredOptions(filtered);
 
       if (selectedValue && !filtered.find((opt: { Id: string | number; }) => opt.Id === selectedValue)) {
         onValueChange('');
       }
     } else {
-      setFilteredOptions(dropdownData[cacheKey]);
+      setFilteredOptions(options);
     }
   }, [parentValue, isAuthenticated]);
 
@@ -122,7 +124,11 @@ export const Dropdown: React.FC<DropdownProps> = ({
         <Text style={[styles.dropdownButtonText, !selectedValue && styles.placeholderText]} numberOfLines={1}>
           {loading ? 'Loading...' : getSelectedLabel()}
         </Text>
-        <Text style={styles.arrow}>{loading ? '⏳' : '▼'}</Text>
+        {loading ? (
+          <Text style={styles.arrow}>⏳</Text>
+        ) : (
+          <Icon name="expand-more" size={20} color={Colors.secondary} />
+        )}
       </TouchableOpacity>
 
       {displayError && (
@@ -149,7 +155,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label || 'Select Option'}</Text>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                <Text style={styles.closeButton}>✕</Text>
+                <Icon name="close" size={18} color={Colors.secondary} />
               </TouchableOpacity>
             </View>
 
@@ -164,7 +170,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   <Text style={[styles.optionText, selectedValue === item.Id && styles.selectedOptionText]}>
                     {item.Name}
                   </Text>
-                  {selectedValue === item.Id && (<Text style={styles.checkmark}>✓</Text>)}
+                  {selectedValue === item.Id && (
+                    <Icon name="check" size={18} color={Colors.primary} />
+                  )}
                 </TouchableOpacity>
               )}
               ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -265,7 +273,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.white,
-    borderRadius: 20,
+    borderRadius: Spacing.xl,
     width: '85%',
     maxHeight: height * 0.7,
     shadowColor: Colors.shadow,
@@ -288,12 +296,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
   },
-  closeButton: {
-    fontSize: 20,
-    color: Colors.secondary,
-    fontWeight: '500',
-    padding: Spacing.xs,
-  },
   optionItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -302,7 +304,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   selectedOption: {
-    backgroundColor: primaryLight,
+    backgroundColor: Colors.primaryTint,
   },
   optionText: {
     fontSize: 16,
@@ -312,11 +314,6 @@ const styles = StyleSheet.create({
   selectedOptionText: {
     color: Colors.primary,
     fontWeight: '500',
-  },
-  checkmark: {
-    fontSize: 16,
-    color: Colors.primary,
-    marginLeft: Spacing.sm,
   },
   separator: {
     height: 1,

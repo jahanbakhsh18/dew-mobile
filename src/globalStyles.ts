@@ -1,17 +1,22 @@
 import { StyleSheet, Platform } from 'react-native';
 
 export const Colors = {
-  primary: '#007AFF',
-  secondary: '#64748b',
-  background: '#f8fafc',
-  text: '#1e293b',
-  white: '#ffffff',
-  lightGray: '#f5f5f5',
-  border: '#ddd',
-  inputBackground: '#fafafa',
-  shadow: '#000',
-  danger: '#FF6B6B',
-  success: '#34C759',
+  primary: '#0E7A85',      // Dew teal — primary brand accent
+  primaryDark: '#0A5C64',  // pressed / emphasis state
+  primaryMuted: '#7FB8B4', // desaturated teal — disabled/incomplete states
+  primaryTint: '#E3F3F2',  // pale teal — badges, selected backgrounds, gradients
+  secondary: '#5B6B79',    // slate — secondary text (kept name for compatibility)
+  textMuted: '#5B6B79',
+  background: '#F4F8F8',   // cool off-white app background
+  white: '#FFFFFF',
+  lightGray: '#EEF3F3',
+  border: '#DCE6E6',
+  inputBackground: '#FAFDFD',
+  shadow: '#0B2E30',
+  danger: '#D0483F',
+  warning: '#D89A34',
+  success: '#2C8F63',
+  text: '#101827',         // near-ink, used for primary text
 } as const;
 
 export const Spacing = {
@@ -27,10 +32,17 @@ export const Spacing = {
 export const Shadows = {
   card: {
     shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
     elevation: 3,
+  },
+  raised: {
+    shadowColor: Colors.shadow,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 18,
+    elevation: 6,
   },
 } as const;
 
@@ -42,7 +54,7 @@ export const Layout = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.primary,
   },
   centered: {
     justifyContent: 'center',
@@ -54,9 +66,7 @@ export const Layout = StyleSheet.create({
   },
   loginContainer: {
     flex: 1,
-    backgroundColor: Colors.lightGray,
-    justifyContent: 'center',
-    padding: Spacing.xl,
+    backgroundColor: Colors.background,
   },
 });
 
@@ -64,13 +74,13 @@ export const Layout = StyleSheet.create({
 export const Card = StyleSheet.create({
   default: {
     backgroundColor: Colors.white,
-    borderRadius: 10,
+    borderRadius: Spacing.lg,
     padding: Spacing.xl,
     ...Shadows.card,
   },
   ticket: {
     backgroundColor: Colors.white,
-    borderRadius: 12,
+    borderRadius: Spacing.md,
     padding: Spacing.lg,
     marginBottom: Spacing.md,
     ...Shadows.card,
@@ -82,19 +92,21 @@ export const Input = StyleSheet.create({
   default: {
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     padding: Spacing.md,
     fontSize: 16,
     backgroundColor: Colors.inputBackground,
     color: Colors.text,
   },
   search: {
-    backgroundColor: Colors.lightGray,
-    borderRadius: 8,
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.text,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
 });
 
@@ -103,7 +115,7 @@ export const Badge = StyleSheet.create({
   default: {
     paddingHorizontal: Spacing.sm,
     paddingVertical: Spacing.xs,
-    borderRadius: 6,
+    borderRadius: 999,
     alignSelf: 'flex-start',
   },
   text: {
@@ -117,13 +129,13 @@ export const Badge = StyleSheet.create({
 export const ModalStyles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(16, 24, 39, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   container: {
     backgroundColor: Colors.white,
-    borderRadius: 12,
+    borderRadius: Spacing.lg,
     width: '90%',
     maxHeight: '80%',
     padding: Spacing.xl,
@@ -141,9 +153,10 @@ export const ModalStyles = StyleSheet.create({
     backgroundColor: Colors.lightGray,
     justifyContent: 'center',
     alignItems: 'center',
+    margin: 10
   },
   closeText: {
-    fontSize: 20,
+    fontSize: 18,
     color: Colors.secondary,
   },
   footer: {
@@ -156,7 +169,7 @@ export const ModalStyles = StyleSheet.create({
   button: {
     flex: 1,
     paddingVertical: Spacing.md,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     backgroundColor: Colors.lightGray,
     alignItems: 'center',
   },
@@ -166,6 +179,7 @@ export const ModalStyles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     color: Colors.secondary,
+    fontWeight: '600',
   },
   primaryButtonText: {
     color: Colors.white,
@@ -177,21 +191,23 @@ export const Header = StyleSheet.create({
   container: {
     padding: Spacing.xl,
     paddingTop: Platform.OS === 'ios' ? 60 : 50,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 26,
+    fontWeight: '700',
     color: Colors.text,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.secondary,
+    fontWeight: '500',
   },
   actions: {
     flexDirection: 'row',
@@ -207,19 +223,21 @@ export const EmptyState = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.secondary,
     marginBottom: Spacing.md,
+    textAlign: 'center',
   },
   actionButton: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
-    backgroundColor: Colors.lightGray,
-    borderRadius: 8,
+    backgroundColor: Colors.primaryTint,
+    borderRadius: 999,
   },
   actionText: {
-    color: Colors.primary,
+    color: Colors.primaryDark,
     fontSize: 14,
+    fontWeight: '600',
   },
 });
 
@@ -229,20 +247,22 @@ export const Detail = StyleSheet.create({
     marginBottom: Spacing.xxl,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: Colors.text,
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.secondary,
     marginBottom: Spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   text: {
-    fontSize: 14,
-    color: Colors.secondary,
-    lineHeight: 20,
+    fontSize: 15,
+    color: Colors.text,
+    lineHeight: 21,
     marginBottom: Spacing.xs,
   },
   expiredText: {
     color: Colors.danger,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });
 
@@ -252,14 +272,14 @@ export const Filter = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
     marginBottom: Spacing.sm,
     color: Colors.secondary,
   },
   pickerContainer: {
     backgroundColor: Colors.inputBackground,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
     height: 50,
@@ -267,6 +287,8 @@ export const Filter = StyleSheet.create({
   },
   picker: {
     height: 50,
+    color: Colors.textMuted,
+    marginLeft: 5
   },
   sortRow: {
     flexDirection: 'row',
@@ -279,7 +301,7 @@ export const Filter = StyleSheet.create({
   resetButton: {
     flex: 1,
     paddingVertical: Spacing.md,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     backgroundColor: Colors.lightGray,
     alignItems: 'center',
   },
@@ -291,7 +313,7 @@ export const Filter = StyleSheet.create({
   applyButton: {
     flex: 1,
     paddingVertical: Spacing.md,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     backgroundColor: Colors.primary,
     alignItems: 'center',
   },
@@ -308,17 +330,17 @@ export const Buttons = StyleSheet.create({
     backgroundColor: Colors.primary,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     alignItems: 'center',
     marginTop: Spacing.md,
   },
   outline: {
     backgroundColor: Colors.white,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: Colors.primary,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.xl,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     alignItems: 'center',
     marginTop: Spacing.md,
   },
@@ -328,27 +350,45 @@ export const Buttons = StyleSheet.create({
 export const Typography = StyleSheet.create({
   headlineLarge: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: Colors.text,
-    textAlign: 'center',
+    letterSpacing: -0.4,
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: '700',
+    color: Colors.white,
+    letterSpacing: -0.3,
+  },
+  headerSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.85)',
+    fontWeight: '500',
   },
   headline: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '700',
     color: Colors.text,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.secondary,
-    textAlign: 'center',
   },
   body: {
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.text,
   },
   caption: {
     fontSize: 12,
     color: Colors.secondary,
+  },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: Colors.primaryDark,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   buttonText: {
     fontSize: 16,

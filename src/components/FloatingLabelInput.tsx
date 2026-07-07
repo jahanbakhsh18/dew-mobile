@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, TextInput, TextInputProps, Animated, StyleSheet, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { Colors, Spacing, Typography } from '../globalStyles';
+import { Ionicons } from '@react-native-vector-icons/ionicons';
+import { Colors, Spacing } from '../globalStyles';
 
 interface FloatingLabelInputProps {
   label: string;
@@ -93,13 +93,19 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
 
   const borderGradientColor = borderAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: [error ? Colors.danger : Colors.border],
+    outputRange: [
+      error ? Colors.danger : Colors.border,
+      error ? Colors.danger : Colors.primary,
+    ],
   });
 
   const shadowOpacity = borderAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 0.15],
   });
+
+  // Calculate label position based on left icon presence
+  const labelLeft = leftIcon ? 44 : Spacing.lg;
 
   return (
     <Animated.View
@@ -130,32 +136,49 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
       >
         {leftIcon && (
           <View style={styles.leftIconContainer}>
-            <Icon name={leftIcon} size={20} color={isFocused ? Colors.primary : Colors.secondary} />
+            <Ionicons name={leftIcon as any} size={20} color={isFocused ? Colors.primary : Colors.secondary} />
           </View>
         )}
 
-        <Animated.Text
+        <Animated.View
           style={[
-            styles.label,
+            styles.labelWrapper,
             {
-              left: leftIcon ? 44 : Spacing.lg,
+              left: labelLeft - Spacing.xs, // Offset to account for label padding
               top: animatedLabel.interpolate({
                 inputRange: [0, 1],
                 outputRange: [14, -8],
               }),
-              fontSize: animatedLabel.interpolate({
-                inputRange: [0, 1],
-                outputRange: [16, 12],
-              }),
-              color: animatedLabel.interpolate({
-                inputRange: [0, 1],
-                outputRange: [error ? Colors.danger : Colors.secondary, error ? Colors.danger : Colors.primary],
-              }),
             },
           ]}
         >
-          {label}
-        </Animated.Text>
+          <Animated.Text
+            style={[
+              styles.label,
+              {
+                fontSize: animatedLabel.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [16, 12],
+                }),
+                color: animatedLabel.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [error ? Colors.danger : Colors.secondary, error ? Colors.danger : Colors.primary],
+                }),
+                // Add background color only when label is floated
+                backgroundColor: animatedLabel.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: ['transparent', Colors.white, Colors.white],
+                }),
+                paddingHorizontal: animatedLabel.interpolate({
+                  inputRange: [0, 0.5, 1],
+                  outputRange: [0, Spacing.xs, Spacing.xs],
+                }),
+              },
+            ]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
 
         <TextInput
           style={[
@@ -177,7 +200,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
             style={styles.rightIconContainer}
             onPress={onRightIconPress || (() => { })}
           >
-            <Icon name={rightIcon} size={20} color={isFocused ? Colors.primary : Colors.secondary} />
+            <Ionicons name={rightIcon as any} size={20} color={isFocused ? Colors.primary : Colors.secondary} />
           </TouchableOpacity>
         )}
 
@@ -186,7 +209,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
             style={styles.rightIconContainer}
             onPress={() => setShowPassword(!showPassword)}
           >
-            <Icon
+            <Ionicons
               name={showPassword ? 'eye-off' : 'eye'}
               size={20}
               color={isFocused ? Colors.primary : Colors.secondary}
@@ -197,7 +220,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
 
       {error && (
         <Animated.View style={styles.errorContainer}>
-          <Icon name="alert-circle" size={12} color={Colors.danger} />
+          <Ionicons name="alert-circle" size={12} color={Colors.danger} />
           <Animated.Text style={styles.errorText}>
             {error}
           </Animated.Text>
@@ -210,7 +233,7 @@ const FloatingLabelInput: React.FC<FloatingLabelInputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginVertical: Spacing.md,
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: 0,
   },
   inputWrapper: {
     position: 'relative',
@@ -224,7 +247,7 @@ const styles = StyleSheet.create({
   },
   input: {
     paddingHorizontal: Spacing.lg,
-    paddingTop: 18,
+    paddingTop: 10,
     paddingBottom: 10,
     fontSize: 16,
     backgroundColor: 'transparent',
@@ -232,12 +255,15 @@ const styles = StyleSheet.create({
     color: Colors.text,
     minHeight: 56,
   },
-  label: {
+  labelWrapper: {
     position: 'absolute',
-    backgroundColor: 'transparent',
-    paddingHorizontal: Spacing.xs,
-    color: Colors.secondary,
     zIndex: 1,
+    paddingHorizontal: 0,
+  },
+  label: {
+    color: Colors.secondary,
+    paddingTop: 4,
+    fontWeight: '500',
   },
   leftIconContainer: {
     position: 'absolute',

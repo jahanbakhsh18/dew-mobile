@@ -3,12 +3,13 @@ import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Image,
   ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StatusBar, Animated, Keyboard
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Dropdown } from '../components/Dropdown';
 import ticketService from '../services/ticket.service';
 import FileUploadService from '../services/file-upload.service';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Spacing, Typography, Layout } from '../globalStyles';
+import { Colors, Spacing, Typography, Layout, Shadows } from '../globalStyles';
 import { API_URL } from '../config'
 
 const CreateScreen: React.FC = () => {
@@ -22,7 +23,8 @@ const CreateScreen: React.FC = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const descriptionInputRef = useRef<TextInput>(null);
 
-  const fileListAnimation = new Animated.Value(0);
+  // Fixed: previously re-created every render, which reset the animation.
+  const fileListAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.spring(fileListAnimation, {
@@ -147,7 +149,7 @@ const CreateScreen: React.FC = () => {
         />
       ) : (
         <View style={styles.fileIcon}>
-          <Text style={styles.fileIconText}>📄</Text>
+          <Icon name="insert-drive-file" size={22} color={Colors.primary} />
         </View>
       )}
       <View style={styles.fileInfo}>
@@ -162,7 +164,7 @@ const CreateScreen: React.FC = () => {
         <ActivityIndicator size="small" color={Colors.primary} />
       ) : (
         <TouchableOpacity onPress={() => removeFile(item.originalName)} style={styles.removeButton}>
-          <Text style={styles.removeButtonText}>✕</Text>
+          <Icon name="close" size={16} color={Colors.white} />
         </TouchableOpacity>
       )}
     </View>
@@ -170,7 +172,7 @@ const CreateScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={Layout.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} translucent={false} />
+      <StatusBar barStyle="light-content" />
 
       <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
@@ -178,7 +180,7 @@ const CreateScreen: React.FC = () => {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
         <View style={styles.fixedHeader}>
-          <Text style={Typography.headline}>Create New Ticket</Text>
+          <Text style={Typography.headerTitle}>New ticket</Text>
 
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
@@ -186,14 +188,14 @@ const CreateScreen: React.FC = () => {
             </View>
             <View style={styles.progressTextContainer}>
               <Text style={styles.progressText}>
-                {getProgress() === 100 ? '✓ Complete' : `${getProgress()}% Complete`}
+                {getProgress() === 100 ? 'Ready to submit' : `${getProgress()}% complete`}
               </Text>
               <Text style={styles.progressHint}>
                 {getProgress() === 100
-                  ? 'Ready to submit!'
+                  ? 'All set!'
                   : getProgress() < 66
-                    ? 'Please select system and problem'
-                    : 'Almost there!'}
+                    ? 'Select a system and problem'
+                    : 'Almost there'}
               </Text>
             </View>
           </View>
@@ -208,6 +210,7 @@ const CreateScreen: React.FC = () => {
           keyboardDismissMode="interactive"
         >
           <View style={styles.content}>
+            <Text style={styles.sectionEyebrow}>Details</Text>
             <View style={styles.dropdownContainer}>
               <Dropdown
                 cacheKey="ticket_systems"
@@ -263,24 +266,24 @@ const CreateScreen: React.FC = () => {
             </View>
 
             <View style={styles.attachmentSection}>
-              <Text style={Typography.body}>Attachments</Text>
+              <Text style={styles.sectionEyebrow}>Attachments</Text>
               <Text style={[Typography.caption, { marginBottom: Spacing.md }]}>
                 Add images, documents, or take photos to provide more context
               </Text>
 
               <View style={styles.buttonRow}>
                 <TouchableOpacity style={styles.attachmentButton} onPress={handlePickImage} activeOpacity={0.7}>
-                  <Text style={styles.attachmentButtonIcon}>🖼️</Text>
+                  <Icon name="image" size={20} color={Colors.primary} />
                   <Text style={styles.attachmentButtonText}>Image</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.attachmentButton} onPress={handleTakePhoto} activeOpacity={0.7}>
-                  <Text style={styles.attachmentButtonIcon}>📸</Text>
+                  <Icon name="photo-camera" size={20} color={Colors.primary} />
                   <Text style={styles.attachmentButtonText}>Camera</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.attachmentButton} onPress={handlePickDocument} activeOpacity={0.7}>
-                  <Text style={styles.attachmentButtonIcon}>📎</Text>
+                  <Icon name="attach-file" size={20} color={Colors.primary} />
                   <Text style={styles.attachmentButtonText}>File</Text>
                 </TouchableOpacity>
               </View>
@@ -302,8 +305,12 @@ const CreateScreen: React.FC = () => {
                     onPress={() => setIsFileListExpanded(!isFileListExpanded)}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.fileListTitle}>Uploaded Files ({uploadedFiles.length})</Text>
-                    <Text style={styles.expandIcon}>{isFileListExpanded ? '▼' : '▶'}</Text>
+                    <Text style={styles.fileListTitle}>Uploaded files ({uploadedFiles.length})</Text>
+                    <Icon
+                      name={isFileListExpanded ? 'expand-less' : 'expand-more'}
+                      size={22}
+                      color={Colors.secondary}
+                    />
                   </TouchableOpacity>
 
                   {isFileListExpanded && (
@@ -321,7 +328,7 @@ const CreateScreen: React.FC = () => {
 
               {uploadedFiles.length === 0 && !isUploading && (
                 <View style={styles.emptyFilesContainer}>
-                  <Text style={styles.emptyFilesIcon}>📎</Text>
+                  <Icon name="attach-file" size={32} color={Colors.secondary} style={{ opacity: 0.5 }} />
                   <Text style={styles.emptyFilesText}>No files attached yet</Text>
                   <Text style={styles.emptyFilesSubtext}>
                     Use the buttons above to add images or documents
@@ -358,15 +365,15 @@ const CreateScreen: React.FC = () => {
               <ActivityIndicator size="small" color={Colors.white} />
             ) : (
               <Text style={styles.submitButtonText}>
-                Create Ticket
+                Create ticket
               </Text>
             )}
           </TouchableOpacity>
-          {getProgress() < 66 && getProgress() > 0 && (
+          {/* {getProgress() < 66 && getProgress() > 0 && (
             <Text style={styles.submitHint}>
-              ⚠️ Please complete required fields (System & Problem)
+              Complete the required fields (system & problem) to continue
             </Text>
-          )}
+          )} */}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -378,7 +385,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   fixedHeader: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.primary,
     paddingTop: Platform.OS === 'ios' ? 0 : Spacing.sm,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.lg,
@@ -387,7 +394,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   progressContainer: {
-    marginBottom: Spacing.xs,
+    marginTop: Spacing.md,
   },
   progressBar: {
     height: 6,
@@ -397,7 +404,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primaryMuted,
     borderRadius: 3,
   },
   progressTextContainer: {
@@ -408,12 +415,12 @@ const styles = StyleSheet.create({
   },
   progressText: {
     fontSize: 13,
-    color: Colors.text,
+    color: Colors.primaryTint,
     fontWeight: '600',
   },
   progressHint: {
     fontSize: 12,
-    color: Colors.secondary,
+    color: Colors.primaryTint,
   },
   scrollContent: {
     flexGrow: 1,
@@ -421,6 +428,10 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.xl,
+  },
+  sectionEyebrow: {
+    ...Typography.eyebrow,
+    marginBottom: Spacing.md,
   },
   dropdownContainer: {
     marginBottom: Spacing.lg,
@@ -451,7 +462,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderWidth: 1.5,
     borderColor: Colors.border,
-    borderRadius: 12,
+    borderRadius: Spacing.md,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     fontSize: 16,
@@ -476,10 +487,10 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   attachmentButton: {
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.white,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
-    borderRadius: 12,
+    borderRadius: Spacing.md,
     flex: 1,
     alignItems: 'center',
     flexDirection: 'row',
@@ -487,9 +498,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
-  },
-  attachmentButtonIcon: {
-    fontSize: 18,
+    ...Shadows.card,
   },
   attachmentButtonText: {
     color: Colors.text,
@@ -513,11 +522,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.text,
   },
-  expandIcon: {
-    fontSize: 14,
-    color: Colors.secondary,
-    fontWeight: '600',
-  },
   fileList: {
     marginTop: Spacing.sm,
   },
@@ -526,7 +530,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     padding: Spacing.md,
-    borderRadius: 10,
+    borderRadius: Spacing.md,
     marginBottom: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -534,20 +538,17 @@ const styles = StyleSheet.create({
   filePreview: {
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     marginRight: Spacing.md,
   },
   fileIcon: {
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     marginRight: Spacing.md,
-    backgroundColor: Colors.lightGray,
+    backgroundColor: Colors.primaryTint,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  fileIconText: {
-    fontSize: 22,
   },
   fileInfo: {
     flex: 1,
@@ -563,37 +564,28 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
   },
   removeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: Colors.danger,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  removeButtonText: {
-    color: Colors.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   emptyFilesContainer: {
     alignItems: 'center',
     paddingVertical: Spacing.xxxl,
-    backgroundColor: Colors.lightGray,
-    borderRadius: 12,
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.md,
     marginTop: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
     borderStyle: 'dashed',
   },
-  emptyFilesIcon: {
-    fontSize: 48,
-    marginBottom: Spacing.md,
-    opacity: 0.5,
-  },
   emptyFilesText: {
     fontSize: 15,
     color: Colors.secondary,
     fontWeight: '500',
+    marginTop: Spacing.md,
     marginBottom: Spacing.xs,
   },
   emptyFilesSubtext: {
@@ -631,7 +623,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: Colors.primary,
-    borderRadius: 14,
+    borderRadius: Spacing.md,
     paddingVertical: Spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
@@ -648,7 +640,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   submitButtonIncomplete: {
-    backgroundColor: '#93c5fd',
+    backgroundColor: Colors.primaryMuted,
     shadowOpacity: 0.1,
   },
   submitButtonText: {

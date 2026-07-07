@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet, Platform, Dimensions } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, Shadows, } from '../globalStyles';
-const { width } = Dimensions.get('window');
+import { Colors, Spacing } from '../globalStyles';
 
 interface TabBarProps {
   state: any;

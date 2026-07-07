@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import SamplePopup from './SamplePopup';
-import { Colors, Spacing, Typography, Card, Shadows } from '../globalStyles';
+import { Colors, Spacing, Typography, Shadows } from '../globalStyles';
 
 interface FormCardProps {
   title: string;

@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../contexts/AuthContext';
-import { Colors, Spacing, Typography, Layout, Card, Buttons } from '../globalStyles';
+import { Colors, Spacing, Typography, Layout, Shadows } from '../globalStyles';
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useAuth();
@@ -31,38 +32,51 @@ const ProfileScreen: React.FC = () => {
   ];
 
   return (
-    <SafeAreaView style={Layout.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+    <SafeAreaView style={Layout.container} edges={['bottom']}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <View style={styles.avatarContainer}>
+        <LinearGradient
+          colors={[Colors.primaryDark, Colors.primary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.avatarRing}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
                 {user?.username?.charAt(0).toUpperCase() || 'U'}
               </Text>
             </View>
           </View>
-          <Text style={Typography.headline}>{user?.username || 'User'}</Text>
-          <Text style={Typography.caption}>user@example.com</Text>
-        </View>
+          <Text style={styles.userName}>{user?.username || 'User'}</Text>
+          <Text style={styles.userMeta}>Signed in</Text>
+        </LinearGradient>
 
         <View style={styles.menuSection}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={item.onPress}
-              activeOpacity={0.7}
-            >
-              <Icon name={item.icon} size={24} color={Colors.primary} />
-              <Text style={styles.menuItemText}>{item.title}</Text>
-              <Icon name="chevron-right" size={20} color={Colors.secondary} />
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.sectionEyebrow}>Settings</Text>
+          <View style={styles.menuCard}>
+            {menuItems.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.menuItem,
+                  index === menuItems.length - 1 && styles.menuItemLast,
+                ]}
+                onPress={item.onPress}
+                activeOpacity={0.7}
+              >
+                <View style={styles.menuIconWrap}>
+                  <Icon name={item.icon} size={20} color={Colors.primary} />
+                </View>
+                <Text style={styles.menuItemText}>{item.title}</Text>
+                <Icon name="chevron-right" size={20} color={Colors.secondary} />
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.7}>
-          <Icon name="logout" size={24} color={Colors.danger} />
+          <Icon name="logout" size={20} color={Colors.danger} />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
 
@@ -75,40 +89,59 @@ const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
-    paddingTop: Spacing.xxxl + Spacing.xl, // ~60
-    paddingBottom: Spacing.xxl,
-    backgroundColor: Colors.white,
-    borderBottomLeftRadius: Spacing.xxl,
-    borderBottomRightRadius: Spacing.xxl,
+    paddingTop: Spacing.xxxl + Spacing.xl,
+    paddingBottom: Spacing.xxxl,
+    borderBottomLeftRadius: Spacing.xl,
+    borderBottomRightRadius: Spacing.xl,
     marginBottom: Spacing.xl,
   },
-  avatarContainer: {
+  avatarRing: {
+    width: 108,
+    height: 108,
+    borderRadius: 54,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Spacing.lg,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: Colors.primary,
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    ...Shadows.raised,
   },
   avatarText: {
-    fontSize: 48,
-    fontWeight: '600',
+    fontSize: 40,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: '700',
     color: Colors.white,
   },
+  userMeta: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.8)',
+    marginTop: 2,
+  },
+  sectionEyebrow: {
+    ...Typography.eyebrow,
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.sm,
+  },
   menuSection: {
+    marginBottom: Spacing.xl,
+  },
+  menuCard: {
     backgroundColor: Colors.white,
     borderRadius: Spacing.lg,
     marginHorizontal: Spacing.lg,
-    marginTop: Spacing.sm,
     overflow: 'hidden',
+    ...Shadows.card,
   },
   menuItem: {
     flexDirection: 'row',
@@ -118,11 +151,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.lightGray,
   },
+  menuItemLast: {
+    borderBottomWidth: 0,
+  },
+  menuIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: Spacing.sm,
+    backgroundColor: Colors.primaryTint,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
   menuItemText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.text,
-    marginLeft: Spacing.md,
+    fontWeight: '500',
   },
   logoutButton: {
     flexDirection: 'row',
@@ -130,13 +175,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: Colors.white,
     marginHorizontal: Spacing.lg,
-    marginTop: Spacing.xl,
     paddingVertical: Spacing.md,
-    borderRadius: 12,
+    borderRadius: Spacing.md,
     gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   logoutText: {
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.danger,
     fontWeight: '600',
   },

@@ -4,12 +4,13 @@ import {
   RefreshControl, TextInput, Modal, ScrollView, Alert, StatusBar, Platform
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import ticketService from '../services/ticket.service';
 import { Ticket } from '../types/ticket.types';
 import { Dropdown } from '../components/Dropdown';
 import LinearGradient from 'react-native-linear-gradient';
 import { 
-  Colors, Spacing, Typography, Layout, Card, Input, Badge, ModalStyles,
+  Colors, Spacing, Typography, Layout, Badge, ModalStyles,
   Header, EmptyState, Detail, Filter, Buttons, Shadows } from '../globalStyles';
 
 const TicketScreen: React.FC = () => {
@@ -125,6 +126,7 @@ const TicketScreen: React.FC = () => {
     setTempFilters(resetValues);
     setFilters(resetValues);
     setFilterModalVisible(false);
+    setSearchQuery('');
   };
 
   const handleScroll = (event: any) => {
@@ -142,41 +144,54 @@ const TicketScreen: React.FC = () => {
       ticket.Id.toString().includes(searchQuery)
   );
 
-  const renderTicketItem = ({ item }: { item: Ticket }) => (
-    <TouchableOpacity
-      style={Card.ticket}
-      onPress={() => handleTicketPress(item)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.ticketHeader}>
-        <Text style={styles.ticketId}>Ticket #{item.Id}</Text>
-        <View style={[Badge.default, { backgroundColor: item.TimeFlagColor || Colors.secondary }]}>
-          <Text style={Badge.text}>{item.StatusName}</Text>
+  const renderTicketItem = ({ item }: { item: Ticket }) => {
+    const accentColor = item.TimeFlagColor || Colors.secondary;
+    return (
+      <TouchableOpacity
+        style={styles.ticketCard}
+        onPress={() => handleTicketPress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={[styles.ticketAccent, { backgroundColor: accentColor }]} />
+        <View style={styles.ticketBody}>
+          <View style={styles.ticketHeader}>
+            <Text style={styles.ticketId}>#{item.Id}</Text>
+            <View style={[Badge.default, { backgroundColor: accentColor }]}>
+              <Text style={Badge.text}>{item.StatusName}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.problemName} numberOfLines={2}>{item.ProblemName}</Text>
+
+          <View style={styles.ticketFooter}>
+            <View style={Layout.row}>
+              <Icon name="business" size={14} color={Colors.secondary} />
+              <Text style={styles.systemName}>{item.SystemName}</Text>
+            </View>
+            <View style={Layout.row}>
+              <Icon name="person" size={14} color={Colors.secondary} />
+              <Text style={styles.creator}> {item.CreatorUsername}</Text>
+            </View>
+          </View>
+
+          <View style={styles.metaInfo}>
+            <View style={styles.metaRow}>
+              <Icon name="event" size={13} color={Colors.secondary} />
+              <Text style={styles.date}> Created {new Date(item.DateCreated).toLocaleDateString()}</Text>
+            </View>
+            {item.ExpireDate && (
+              <View style={styles.metaRow}>
+                <Icon name="schedule" size={13} color={new Date(item.ExpireDate) < new Date() ? Colors.danger : Colors.secondary} />
+                <Text style={[styles.date, new Date(item.ExpireDate) < new Date() && styles.expired]}>
+                  {' '}Expires {new Date(item.ExpireDate).toLocaleDateString()}
+                </Text>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
-
-      <Text style={styles.problemName}>{item.ProblemName}</Text>
-
-      <View style={styles.ticketFooter}>
-        <View style={Layout.row}>
-          <Text style={styles.systemIcon}>🏢</Text>
-          <Text style={styles.systemName}>{item.SystemName}</Text>
-        </View>
-        <Text style={styles.creator}>👤 {item.CreatorUsername}</Text>
-      </View>
-
-      <View style={styles.metaInfo}>
-        <Text style={styles.date}>
-          📅 Created: {new Date(item.DateCreated).toLocaleDateString()}
-        </Text>
-        {item.ExpireDate && (
-          <Text style={[styles.date, new Date(item.ExpireDate) < new Date() && styles.expired]}>
-            ⏰ Expires: {new Date(item.ExpireDate).toLocaleDateString()}
-          </Text>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   if (loading && tickets.length === 0) {
     return (
@@ -189,27 +204,28 @@ const TicketScreen: React.FC = () => {
 
   return (
     <View style={Layout.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
       <LinearGradient
-        colors={[Colors.primary, '#F3F4F6', '#F9FAFC', Colors.white]}
+        colors={[Colors.primaryDark, Colors.primaryTint, Colors.background, Colors.background]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0.3, y: 1 }}
         style={styles.gradient}
       >
-        <View style={Header.container}>
-          <Text style={Header.title}>Tickets</Text>
+        <View style={styles.headerContainer}>
+          <Text style={Typography.headerTitle}>Tickets</Text>
           <View style={Header.actions}>
-            <Text style={Header.subtitle}>Total: {totalCount}</Text>
-            <TouchableOpacity onPress={openFilterModal}>
-              <Text style={styles.filterIcon}>🔍</Text>
+            <Text style={Typography.headerSubtitle}>{totalCount} total</Text>
+            <TouchableOpacity onPress={openFilterModal} style={styles.filterButton}>
+              <Icon name="tune" size={20} color={Colors.white} />
             </TouchableOpacity>
           </View>
         </View>
 
         {isSearchBarVisible && (
           <View style={styles.stickySearchContainer}>
+            <Icon name="search" size={18} color={Colors.secondary} style={styles.searchIcon} />
             <TextInput
-              style={Input.search}
+              style={styles.searchInput}
               placeholder="Search by ID, problem, system, or creator..."
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -228,9 +244,9 @@ const TicketScreen: React.FC = () => {
           <View style={ModalStyles.overlay}>
             <View style={ModalStyles.container}>
               <View style={ModalStyles.header}>
-                <Text style={Typography.headline}>Filter Tickets</Text>
+                <Text style={Typography.headline}>Filter tickets</Text>
                 <TouchableOpacity onPress={() => setFilterModalVisible(false)} style={ModalStyles.closeButton}>
-                  <Text style={ModalStyles.closeText}>✕</Text>
+                  <Icon name="close" size={18} color={Colors.secondary} />
                 </TouchableOpacity>
               </View>
 
@@ -264,7 +280,7 @@ const TicketScreen: React.FC = () => {
                 </View>
 
                 <View style={Filter.group}>
-                  <Text style={Filter.label}>Sort By</Text>
+                  <Text style={Filter.label}>Sort by</Text>
                   <View style={Filter.sortRow}>
                     <View style={[Filter.pickerContainer, { flex: 4, marginRight: Spacing.sm }]}>
                       <Picker
@@ -296,7 +312,7 @@ const TicketScreen: React.FC = () => {
                   <Text style={Filter.resetButtonText}>Reset</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={Filter.applyButton} onPress={applyFilters}>
-                  <Text style={Filter.applyButtonText}>Apply Filters</Text>
+                  <Text style={Filter.applyButtonText}>Apply filters</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -306,6 +322,7 @@ const TicketScreen: React.FC = () => {
         {/* Ticket List */}
         {error ? (
           <View style={Layout.centered}>
+            <Icon name="error-outline" size={32} color={Colors.danger} style={{ marginBottom: Spacing.md }} />
             <Text style={[Typography.body, { color: Colors.danger, marginBottom: Spacing.md }]}>
               {error}
             </Text>
@@ -318,16 +335,17 @@ const TicketScreen: React.FC = () => {
             data={filteredTickets}
             renderItem={renderTicketItem}
             keyExtractor={(item) => item.Id.toString()}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
             onScroll={handleScroll}
             scrollEventThrottle={16}
             ListEmptyComponent={() => (
               <View style={EmptyState.container}>
+                <Icon name="inbox" size={40} color={Colors.secondary} style={{ opacity: 0.5, marginBottom: Spacing.md }} />
                 <Text style={EmptyState.text}>No tickets found</Text>
                 <TouchableOpacity style={EmptyState.actionButton} onPress={resetFilters}>
-                  <Text style={EmptyState.actionText}>Reset Filters</Text>
+                  <Text style={EmptyState.actionText}>Reset filters</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -343,9 +361,9 @@ const TicketScreen: React.FC = () => {
         >
           <View style={styles.modalContainer}>
             <View style={ModalStyles.header}>
-              <Text style={[Typography.headline, { fontSize: 20 }]}>Ticket #{selectedTicket?.Id}</Text>
+              <Text style={[Typography.headline, { paddingLeft:20 }]}>Ticket #{selectedTicket?.Id}</Text>
               <TouchableOpacity onPress={handleCloseModal} style={ModalStyles.closeButton}>
-                <Text style={ModalStyles.closeText}>✕</Text>
+                <Icon name="close" size={18} color={Colors.secondary} />
               </TouchableOpacity>
             </View>
 
@@ -376,18 +394,18 @@ const TicketScreen: React.FC = () => {
                     </View>
 
                     <View style={Detail.section}>
-                      <Text style={Detail.sectionTitle}>Created By</Text>
+                      <Text style={Detail.sectionTitle}>Created by</Text>
                       <Text style={Detail.text}>{selectedTicket.CreatorUsername}</Text>
                     </View>
 
                     <View style={Detail.section}>
                       <Text style={Detail.sectionTitle}>Timeline</Text>
                       <Text style={Detail.text}>
-                        🕐 Created: {new Date(selectedTicket.DateCreated).toLocaleString()}
+                        Created: {new Date(selectedTicket.DateCreated).toLocaleString()}
                       </Text>
                       {selectedTicket.DateUpdated && (
                         <Text style={Detail.text}>
-                          🔄 Updated: {new Date(selectedTicket.DateUpdated).toLocaleString()}
+                          Updated: {new Date(selectedTicket.DateUpdated).toLocaleString()}
                         </Text>
                       )}
                       {selectedTicket.ExpireDate && (
@@ -397,12 +415,12 @@ const TicketScreen: React.FC = () => {
                             new Date(selectedTicket.ExpireDate) < new Date() && Detail.expiredText,
                           ]}
                         >
-                          ⏰ Expires: {new Date(selectedTicket.ExpireDate).toLocaleString()}
+                          Expires: {new Date(selectedTicket.ExpireDate).toLocaleString()}
                         </Text>
                       )}
                       {selectedTicket.DateClosed && (
                         <Text style={Detail.text}>
-                          ✅ Closed: {new Date(selectedTicket.DateClosed).toLocaleString()}
+                          Closed: {new Date(selectedTicket.DateClosed).toLocaleString()}
                         </Text>
                       )}
                     </View>
@@ -428,7 +446,8 @@ const TicketScreen: React.FC = () => {
                                     style={styles.fileItem}
                                     onPress={() => Alert.alert('File', `Download: ${file.OriginalName}`)}
                                   >
-                                    <Text style={styles.fileName}>📎 {file.OriginalName}</Text>
+                                    <Icon name="attach-file" size={16} color={Colors.primary} />
+                                    <Text style={styles.fileName}> {file.OriginalName}</Text>
                                   </TouchableOpacity>
                                 ));
                               } catch {
@@ -446,10 +465,10 @@ const TicketScreen: React.FC = () => {
 
             <View style={ModalStyles.footer}>
               <TouchableOpacity style={[ModalStyles.button, ModalStyles.primaryButton]}>
-                <Text style={[ModalStyles.buttonText, ModalStyles.primaryButtonText]}>Add Comment</Text>
+                <Text style={[ModalStyles.buttonText, ModalStyles.primaryButtonText]}>Add comment</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[ModalStyles.button, ModalStyles.primaryButton]}>
-                <Text style={[ModalStyles.buttonText, ModalStyles.primaryButtonText]}>Update Status</Text>
+                <Text style={[ModalStyles.buttonText, ModalStyles.primaryButtonText]}>Update status</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -463,30 +482,70 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  headerContainer: {
+    padding: Spacing.xl,
+    paddingTop: Platform.OS === 'ios' ? 60 : 50,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  filterButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   stickySearchContainer: {
     backgroundColor: Colors.white,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
   },
-  filterIcon: {
-    fontSize: 20,
-    paddingHorizontal: Spacing.sm,
+  searchIcon: {
+    marginRight: Spacing.sm,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    fontSize: 15,
+    color: Colors.text,
   },
   filterModalContent: {
     maxHeight: '75%',
+  },
+  ticketCard: {
+    flexDirection: 'row',
+    backgroundColor: Colors.white,
+    borderRadius: Spacing.md,
+    marginBottom: Spacing.md,
+    overflow: 'hidden',
+    ...Shadows.card,
+  },
+  ticketAccent: {
+    width: 5,
+  },
+  ticketBody: {
+    flex: 1,
+    padding: Spacing.lg,
   },
   ticketHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   ticketId: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.primary,
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.primaryDark,
   },
   problemName: {
     fontSize: 16,
@@ -500,13 +559,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.sm,
   },
-  systemIcon: {
-    fontSize: 14,
-    marginRight: Spacing.xs,
-  },
   systemName: {
     fontSize: 13,
     color: Colors.secondary,
+    marginLeft: Spacing.xs,
   },
   creator: {
     fontSize: 13,
@@ -517,10 +573,14 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.lightGray,
     paddingTop: Spacing.sm,
   },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
   date: {
     fontSize: 11,
     color: Colors.secondary,
-    marginBottom: 2,
   },
   expired: {
     color: Colors.danger,
@@ -537,9 +597,11 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
   },
   fileItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.lightGray,
     padding: Spacing.md,
-    borderRadius: 8,
+    borderRadius: Spacing.sm,
     marginBottom: Spacing.sm,
   },
   fileName: {

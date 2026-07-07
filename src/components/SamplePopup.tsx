@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { Colors, Spacing, Typography, ModalStyles, Buttons } from '../globalStyles';
+import { Spacing, Typography, ModalStyles, Buttons } from '../globalStyles';
 
 const { width } = Dimensions.get('window');
 
