@@ -43,4 +43,3 @@ npm-debug.log
 .env
 android/app/src/main/res/raw/server.crt
 android/app/src/main/res/xml/net_sec_conf_release.xml
-package-lock.json

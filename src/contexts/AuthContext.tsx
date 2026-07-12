@@ -4,7 +4,6 @@ import authService from '../services/auth.service';
 import biometricService from '../services/biometric.service';
 
 interface AuthContextType extends AuthState {
-  refreshCsrfToken: () => Promise<void>;
   loginWithPassword: (username: string, password: string) => Promise<void>;
   loginWithBiometric: () => Promise<void>;
   logout: () => Promise<void>;
@@ -124,10 +123,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const refreshCsrfToken = async () => {
-    await authService.refreshCsrfToken();
-  }
-
   const checkBiometricAvailability = async () => {
     return await biometricService.isBiometricAvailable();
   };
@@ -187,7 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         ...state,
-        refreshCsrfToken,
         loginWithPassword,
         loginWithBiometric,
         logout,

@@ -18,13 +18,15 @@ const CreateScreen: React.FC = () => {
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [isFileListExpanded, setIsFileListExpanded] = useState(true);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const { uploadedFiles, isUploading, uploadFile, removeFile, getFilesPathJson } = useFileUpload();
+  
   const scrollViewRef = useRef<ScrollView>(null);
   const descriptionInputRef = useRef<TextInput>(null);
-
-  // Fixed: previously re-created every render, which reset the animation.
   const fileListAnimation = useRef(new Animated.Value(0)).current;
+  const headerCtaPop = useRef(new Animated.Value(1)).current;
+  
+  const wasReady = useRef(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     Animated.spring(fileListAnimation, {
@@ -34,20 +36,6 @@ const CreateScreen: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, [uploadedFiles.length]);
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setKeyboardVisible(true);
-    });
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardVisible(false);
-    });
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
 
   const handleSystemChange = (value: string | number) => {
     setSelectedSystem(value);
@@ -84,12 +72,29 @@ const CreateScreen: React.FC = () => {
 
   const getProgress = () => {
     let progress = 0;
-    if (selectedSystem) progress += 33;
-    if (selectedProblem) progress += 33;
-    if (description && description.trim().length > 0) progress += 17;
-    if (uploadedFiles.length > 0) progress += 17;
+    if (selectedSystem) progress += 34;
+    if (selectedProblem) progress += 34;
+    if (description && description.trim().length > 0) progress += 16;
+    if (uploadedFiles.length > 0) progress += 16;
     return progress;
   };
+
+  useEffect(() => {
+    const progress = getProgress();
+    const isReady = progress >= 68;
+    setIsReady(isReady);
+
+    if (isReady && !wasReady.current) {
+      headerCtaPop.setValue(0.85);
+      Animated.spring(headerCtaPop, {
+        toValue: 1,
+        friction: 4,
+        tension: 120,
+        useNativeDriver: true,
+      }).start();
+    }
+    wasReady.current = isReady;
+  }, [selectedSystem, selectedProblem, description, uploadedFiles.length]);
 
   const handleSubmit = async () => {
     Keyboard.dismiss();
@@ -174,208 +179,207 @@ const CreateScreen: React.FC = () => {
     <SafeAreaView style={Layout.safeArea}>
       <StatusBar barStyle="light-content" />
 
-      <KeyboardAvoidingView
+      {/* <KeyboardAvoidingView
         style={styles.keyboardAvoidingView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-      >
-        <View style={styles.fixedHeader}>
+      > */}
+      <View style={styles.fixedHeader}>
+        <View style={styles.headerTopRow}>
           <Text style={Typography.headerTitle}>New ticket</Text>
 
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${getProgress()}%` }]} />
-            </View>
-            <View style={styles.progressTextContainer}>
-              <Text style={styles.progressText}>
-                {getProgress() === 100 ? 'Ready to submit' : `${getProgress()}% complete`}
-              </Text>
-              <Text style={styles.progressHint}>
-                {getProgress() === 100
-                  ? 'All set!'
-                  : getProgress() < 66
-                    ? 'Select a system and problem'
-                    : 'Almost there'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <ScrollView
-          ref={scrollViewRef}
-          style={Layout.container}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-        >
-          <View style={styles.content}>
-            <Text style={styles.sectionEyebrow}>Details</Text>
-            <View style={styles.dropdownContainer}>
-              <Dropdown
-                cacheKey="ticket_systems"
-                url="DynamicData/Lookup.Ticket.System?v=639147054752297896"
-                selectedValue={selectedSystem}
-                onValueChange={handleSystemChange}
-                label="System"
-                placeholder="Select a system"
-                required
-                parentValue={''}
-                parentFilterField={''}
-              />
-            </View>
-
-            <View style={styles.dropdownContainer}>
-              <Dropdown
-                cacheKey="ticket_problems"
-                url="DynamicData/Lookup.Ticket.Problem?v=639147054752297833"
-                selectedValue={selectedProblem}
-                onValueChange={handleProblemChange}
-                label="Problem"
-                placeholder="Select a problem"
-                required
-                parentValue={selectedSystem}
-                parentFilterField="SystemId"
-                disabled={!selectedSystem}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <View style={styles.labelRow}>
-                <Text style={styles.inputLabel}>Description</Text>
-                {description.length > 0 && (
-                  <TouchableOpacity onPress={() => setDescription('')} style={styles.clearDescriptionButton}>
-                    <Text style={styles.clearDescriptionText}>Clear</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              <TextInput
-                ref={descriptionInputRef}
-                style={styles.textArea}
-                multiline
-                numberOfLines={4}
-                value={description}
-                onChangeText={setDescription}
-                onFocus={handleDescriptionFocus}
-                placeholder="Provide additional details about the problem..."
-                placeholderTextColor={Colors.secondary}
-                textAlignVertical="top"
-                returnKeyType="done"
-              />
-              <Text style={styles.characterCount}>{description.length} characters</Text>
-            </View>
-
-            <View style={styles.attachmentSection}>
-              <Text style={styles.sectionEyebrow}>Attachments</Text>
-              <Text style={[Typography.caption, { marginBottom: Spacing.md }]}>
-                Add images, documents, or take photos to provide more context
-              </Text>
-
-              <View style={styles.buttonRow}>
-                <TouchableOpacity style={styles.attachmentButton} onPress={handlePickImage} activeOpacity={0.7}>
-                  <Icon name="image" size={20} color={Colors.primary} />
-                  <Text style={styles.attachmentButtonText}>Image</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.attachmentButton} onPress={handleTakePhoto} activeOpacity={0.7}>
-                  <Icon name="photo-camera" size={20} color={Colors.primary} />
-                  <Text style={styles.attachmentButtonText}>Camera</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.attachmentButton} onPress={handlePickDocument} activeOpacity={0.7}>
-                  <Icon name="attach-file" size={20} color={Colors.primary} />
-                  <Text style={styles.attachmentButtonText}>File</Text>
-                </TouchableOpacity>
-              </View>
-
-              {uploadedFiles.length > 0 && (
-                <Animated.View
-                  style={[
-                    styles.fileSection,
-                    {
-                      opacity: fileListAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 1]
-                      })
-                    }
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.fileSectionHeader}
-                    onPress={() => setIsFileListExpanded(!isFileListExpanded)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.fileListTitle}>Uploaded files ({uploadedFiles.length})</Text>
+          { isReady && (
+            <Animated.View style={{ transform: [{ scale: headerCtaPop }] }}>
+              <TouchableOpacity
+                style={[styles.headerCta, getProgress() === 100 && styles.headerCtaReady]}
+                onPress={handleSubmit}
+                disabled={submitting || !isReady}
+                activeOpacity={0.85}
+              >
+                {submitting ? (
+                  <ActivityIndicator size="small" color={getProgress() === 100 ? Colors.primary : Colors.white} />
+                ) : (
+                  <>
                     <Icon
-                      name={isFileListExpanded ? 'expand-less' : 'expand-more'}
-                      size={22}
-                      color={Colors.secondary}
+                      name={getProgress() === 100 ? 'check' : 'arrow-forward'}
+                      size={14}
+                      color={getProgress() === 100 ? Colors.primary : Colors.white}
                     />
-                  </TouchableOpacity>
+                    <Text style={[styles.headerCtaText, getProgress() === 100 && styles.headerCtaTextReady]}>
+                      Create
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </Animated.View>
+          )}
+        </View>
 
-                  {isFileListExpanded && (
-                    <View style={styles.fileList}>
-                      <FlatList
-                        data={uploadedFiles}
-                        renderItem={renderFileItem}
-                        keyExtractor={(item, index) => `${item.originalName}-${index}`}
-                        scrollEnabled={false}
-                      />
-                    </View>
-                  )}
-                </Animated.View>
-              )}
+        <View style={styles.progressContainer}>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${getProgress()}%` }]} />
+          </View>
+          <View style={styles.progressTextContainer}>
+            <Text style={styles.progressText}>
+              {getProgress() === 100 ? 'Ready to submit' : `${getProgress()}% complete`}
+            </Text>
+            <Text style={styles.progressHint}>
+              {getProgress() === 100
+                ? 'All set!'
+                : !isReady
+                  ? 'Select a system and problem'
+                  : 'Almost there'}
+            </Text>
+          </View>
+        </View>
+      </View>
 
-              {uploadedFiles.length === 0 && !isUploading && (
-                <View style={styles.emptyFilesContainer}>
-                  <Icon name="attach-file" size={32} color={Colors.secondary} style={{ opacity: 0.5 }} />
-                  <Text style={styles.emptyFilesText}>No files attached yet</Text>
-                  <Text style={styles.emptyFilesSubtext}>
-                    Use the buttons above to add images or documents
-                  </Text>
-                </View>
-              )}
+      <ScrollView
+        ref={scrollViewRef}
+        style={Layout.container}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      >
+        <View style={styles.content}>
+          <Text style={styles.sectionEyebrow}>Details</Text>
+          <View style={styles.dropdownContainer}>
+            <Dropdown
+              cacheKey="ticket_systems"
+              url="DynamicData/Lookup.Ticket.System?v=639147054752297896"
+              selectedValue={selectedSystem}
+              onValueChange={handleSystemChange}
+              label="System"
+              placeholder="Select a system"
+              required
+              parentValue={''}
+              parentFilterField={''}
+            />
+          </View>
 
-              {isUploading && (
-                <View style={styles.uploadingContainer}>
-                  <ActivityIndicator size="small" color={Colors.primary} />
-                  <Text style={styles.uploadingText}>Uploading file...</Text>
-                </View>
+          <View style={styles.dropdownContainer}>
+            <Dropdown
+              cacheKey="ticket_problems"
+              url="DynamicData/Lookup.Ticket.Problem?v=639147054752297833"
+              selectedValue={selectedProblem}
+              onValueChange={handleProblemChange}
+              label="Problem"
+              placeholder="Select a problem"
+              required
+              parentValue={selectedSystem}
+              parentFilterField="SystemId"
+              disabled={!selectedSystem}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <View style={styles.labelRow}>
+              <Text style={styles.inputLabel}>Description</Text>
+              {description.length > 0 && (
+                <TouchableOpacity onPress={() => setDescription('')} style={styles.clearDescriptionButton}>
+                  <Text style={styles.clearDescriptionText}>Clear</Text>
+                </TouchableOpacity>
               )}
             </View>
-            <View style={styles.bottomPadding} />
+            <TextInput
+              ref={descriptionInputRef}
+              style={styles.textArea}
+              multiline
+              numberOfLines={4}
+              value={description}
+              onChangeText={setDescription}
+              onFocus={handleDescriptionFocus}
+              placeholder="Provide additional details about the problem..."
+              placeholderTextColor={Colors.secondary}
+              textAlignVertical="top"
+              returnKeyType="done"
+            />
+            <Text style={styles.characterCount}>{description.length} characters</Text>
           </View>
-        </ScrollView>
 
-        <View style={[
-          styles.stickyButtonContainer,
-          keyboardVisible && styles.stickyButtonContainerWithKeyboard
-        ]}>
-          <TouchableOpacity
-            style={[
-              styles.submitButton,
-              submitting && styles.submitButtonDisabled,
-              (getProgress() < 66) && styles.submitButtonIncomplete
-            ]}
-            onPress={handleSubmit}
-            disabled={submitting || getProgress() < 66}
-            activeOpacity={0.8}
-          >
-            {submitting ? (
-              <ActivityIndicator size="small" color={Colors.white} />
-            ) : (
-              <Text style={styles.submitButtonText}>
-                Create ticket
-              </Text>
-            )}
-          </TouchableOpacity>
-          {/* {getProgress() < 66 && getProgress() > 0 && (
-            <Text style={styles.submitHint}>
-              Complete the required fields (system & problem) to continue
+          <View style={styles.attachmentSection}>
+            <Text style={styles.sectionEyebrow}>Attachments</Text>
+            <Text style={[Typography.caption, { marginBottom: Spacing.md }]}>
+              Add images, documents, or take photos to provide more context
             </Text>
-          )} */}
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.attachmentButton} onPress={handlePickImage} activeOpacity={0.7}>
+                <Icon name="image" size={20} color={Colors.primary} />
+                <Text style={styles.attachmentButtonText}>Image</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.attachmentButton} onPress={handleTakePhoto} activeOpacity={0.7}>
+                <Icon name="photo-camera" size={20} color={Colors.primary} />
+                <Text style={styles.attachmentButtonText}>Camera</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.attachmentButton} onPress={handlePickDocument} activeOpacity={0.7}>
+                <Icon name="attach-file" size={20} color={Colors.primary} />
+                <Text style={styles.attachmentButtonText}>File</Text>
+              </TouchableOpacity>
+            </View>
+
+            {uploadedFiles.length > 0 && (
+              <Animated.View
+                style={[
+                  styles.fileSection,
+                  {
+                    opacity: fileListAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 1]
+                    })
+                  }
+                ]}
+              >
+                <TouchableOpacity
+                  style={styles.fileSectionHeader}
+                  onPress={() => setIsFileListExpanded(!isFileListExpanded)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.fileListTitle}>Uploaded files ({uploadedFiles.length})</Text>
+                  <Icon
+                    name={isFileListExpanded ? 'expand-less' : 'expand-more'}
+                    size={22}
+                    color={Colors.secondary}
+                  />
+                </TouchableOpacity>
+
+                {isFileListExpanded && (
+                  <View style={styles.fileList}>
+                    <FlatList
+                      data={uploadedFiles}
+                      renderItem={renderFileItem}
+                      keyExtractor={(item, index) => `${item.originalName}-${index}`}
+                      scrollEnabled={false}
+                    />
+                  </View>
+                )}
+              </Animated.View>
+            )}
+
+            {uploadedFiles.length === 0 && !isUploading && (
+              <View style={styles.emptyFilesContainer}>
+                <Icon name="attach-file" size={32} color={Colors.secondary} style={{ opacity: 0.5 }} />
+                <Text style={styles.emptyFilesText}>No files attached yet</Text>
+                <Text style={styles.emptyFilesSubtext}>
+                  Use the buttons above to add images or documents
+                </Text>
+              </View>
+            )}
+
+            {isUploading && (
+              <View style={styles.uploadingContainer}>
+                <ActivityIndicator size="small" color={Colors.primary} />
+                <Text style={styles.uploadingText}>Uploading file...</Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.bottomPadding} />
         </View>
-      </KeyboardAvoidingView>
+      </ScrollView>
+      {/* </KeyboardAvoidingView> */}
     </SafeAreaView>
   );
 };
@@ -606,56 +610,35 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontWeight: '500',
   },
-  stickyButtonContainer: {
-    backgroundColor: Colors.background,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  stickyButtonContainerWithKeyboard: {
-    paddingBottom: Platform.OS === 'ios' ? Spacing.xl : Spacing.md,
-  },
-  submitButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: Spacing.md,
-    paddingVertical: Spacing.lg,
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  headerCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 18,
+    minWidth: 78,
     justifyContent: 'center',
-    shadowColor: Colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-    minHeight: 56,
-    marginBottom: 60,
   },
-  submitButtonDisabled: {
-    backgroundColor: Colors.secondary,
-    shadowOpacity: 0,
+  headerCtaReady: {
+    backgroundColor: Colors.white,
   },
-  submitButtonIncomplete: {
-    backgroundColor: Colors.primaryMuted,
-    shadowOpacity: 0.1,
-  },
-  submitButtonText: {
+  headerCtaText: {
     color: Colors.white,
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '700',
   },
-  submitHint: {
-    fontSize: 12,
-    color: Colors.secondary,
-    textAlign: 'center',
-    marginTop: Spacing.sm,
+  headerCtaTextReady: {
+    color: Colors.primary,
   },
   bottomPadding: {
-    height: Spacing.xl,
+    height: 80,
   },
 });
 

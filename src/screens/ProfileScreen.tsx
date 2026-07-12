@@ -1,13 +1,27 @@
-import React from 'react';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../contexts/AuthContext';
 import { Colors, Spacing, Typography, Layout, Shadows } from '../globalStyles';
+import DeviceInfo from 'react-native-device-info';
+import Popup from '../components/Popup';
+
+const GITHUB_OWNER = 'jahanbakhsh18';
+const GITHUB_REPO = 'dew-mobile';
 
 const ProfileScreen: React.FC = () => {
   const { user, logout } = useAuth();
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [helpPopupVisible, setHelpPopupVisible] = useState(false);
+
+  const developerInfo = {
+    name: 'Mojtaba Jahanbakhsh',
+    email: 'moj.jahanbakhsh@gmail.com',
+    repository: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`,
+    appVersion: DeviceInfo.getVersion(),
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -24,19 +38,68 @@ const ProfileScreen: React.FC = () => {
     );
   };
 
+  const checkForUpdates = async () => {
+    if (isCheckingUpdate) return;
+    setIsCheckingUpdate(true);
+
+    try {
+      const currentVersion = DeviceInfo.getVersion();
+      const response = await fetch(
+        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`
+      );
+      if (!response.ok) {
+        throw new Error('Failed to fetch latest release');
+      }
+      const release = await response.json();
+      const latestVersion = release.tag_name.replace(/^v/, '');
+      const isNewer = latestVersion > currentVersion;
+
+      if (isNewer) {
+        const apkAsset = release.assets.find((asset: any) =>
+          asset.name.endsWith('.apk')
+        );
+        const downloadUrl = apkAsset ? apkAsset.browser_download_url : release.html_url;
+
+        Alert.alert(
+          'Update Available',
+          `Version ${latestVersion} is available. You are on ${currentVersion}.`,
+          [
+            { text: 'Later', style: 'cancel' },
+            {
+              text: 'Download',
+              onPress: () => {
+                Linking.openURL(downloadUrl).catch(() =>
+                  Alert.alert('Error', 'Could not open download link.')
+                );
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Up to Date', `You already have the latest version (${currentVersion}).`);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not check for updates. Please try again later.');
+      console.error(error);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
+
   const menuItems = [
     { icon: 'person', title: 'Account Settings', onPress: () => Alert.alert('Coming Soon', 'Account settings will be available soon') },
     { icon: 'notifications', title: 'Notifications', onPress: () => Alert.alert('Coming Soon', 'Notification settings will be available soon') },
     { icon: 'security', title: 'Security', onPress: () => Alert.alert('Coming Soon', 'Security settings will be available soon') },
-    { icon: 'help', title: 'Help & Support', onPress: () => Alert.alert('Coming Soon', 'Help center will be available soon') }
+    { icon: 'update', title: 'App Updates', onPress: checkForUpdates },
+    { icon: 'help', title: 'Help & Support', onPress: () => setHelpPopupVisible(true) }
   ];
 
   return (
     <SafeAreaView style={Layout.container} edges={['bottom']}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
+      <StatusBar barStyle="light-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <LinearGradient
-          colors={[Colors.primaryDark, Colors.primary]}
+          colors={[Colors.primary, Colors.primary]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}
@@ -64,11 +127,16 @@ const ProfileScreen: React.FC = () => {
                 ]}
                 onPress={item.onPress}
                 activeOpacity={0.7}
+                disabled={item.title === 'App Updates' && isCheckingUpdate}
               >
                 <View style={styles.menuIconWrap}>
                   <Icon name={item.icon} size={20} color={Colors.primary} />
                 </View>
-                <Text style={styles.menuItemText}>{item.title}</Text>
+                <Text style={styles.menuItemText}>
+                  {item.title === 'App Updates' && isCheckingUpdate
+                    ? 'Checking...'
+                    : item.title}
+                </Text>
                 <Icon name="chevron-right" size={20} color={Colors.secondary} />
               </TouchableOpacity>
             ))}
@@ -82,6 +150,18 @@ const ProfileScreen: React.FC = () => {
 
         <View style={styles.bottomPadding} />
       </ScrollView>
+
+      <Popup
+        visible={helpPopupVisible}
+        onClose={() => setHelpPopupVisible(false)}
+        title="Help & Support"
+        message={`\n` + 
+          `${developerInfo.name}\n\n` +
+          `${developerInfo.email}\n` +
+          `${developerInfo.repository}\n\n` +
+          `App Version: ${developerInfo.appVersion}
+        `}
+      />
     </SafeAreaView>
   );
 };

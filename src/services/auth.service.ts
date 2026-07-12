@@ -2,8 +2,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LoginCredentials } from '../types';
 import { apiClient } from './apiClient';
 import * as Keychain from 'react-native-keychain';
-import { API_URL } from '../config'
-import CookieManager from '@preeternal/react-native-cookie-manager';
 import { SerenityLookupResponse } from '../types/dropdown.types';
 
 class AuthService {
@@ -12,6 +10,10 @@ class AuthService {
 
   async loginWithPassword(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
     try {
+
+      // This ensures the token is bound to the unauthenticated user
+      await this.refreshCsrfToken();
+
       let response = await apiClient.post("/Account/Login", {
         Username: credentials.username,
         Password: credentials.password
@@ -30,11 +32,8 @@ class AuthService {
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         });
 
-        // This ensures the token is bound to the authenticated user
+        // Renews the token so it’s now bound to the authenticated user.
         await this.refreshCsrfToken();
-
-        const cookies = await CookieManager.get(API_URL);
-        console.log('Stored cookies:', Object.keys(cookies));
 
         return { user, token };
       } else {

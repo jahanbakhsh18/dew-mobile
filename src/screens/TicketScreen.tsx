@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { 
   Colors, Spacing, Typography, Layout, Badge, ModalStyles,
   Header, EmptyState, Detail, Filter, Buttons, Shadows } from '../globalStyles';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TicketScreen: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -203,12 +204,12 @@ const TicketScreen: React.FC = () => {
   }
 
   return (
-    <View style={Layout.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryDark} />
+    <SafeAreaView style={Layout.safeArea}>
+      <StatusBar barStyle="light-content" />
       <LinearGradient
-        colors={[Colors.primaryDark, Colors.primaryTint, Colors.background, Colors.background]}
+        colors={[Colors.primary, Colors.primaryTint, Colors.background, Colors.background]}
         start={{ x: 0, y: 0 }}
-        end={{ x: 0.3, y: 1 }}
+        end={{ x: 0, y: 1 }}
         style={styles.gradient}
       >
         <View style={styles.headerContainer}>
@@ -474,7 +475,7 @@ const TicketScreen: React.FC = () => {
           </View>
         </Modal>
       </LinearGradient>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -484,7 +485,6 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     padding: Spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 60 : 50,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

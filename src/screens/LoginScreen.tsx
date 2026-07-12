@@ -17,11 +17,10 @@ const LoginScreen: React.FC = () => {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
 
   const {
-    refreshCsrfToken, loginWithPassword, loginWithBiometric,
-    loading, error, checkBiometricAvailability, saveCredentialsForBiometric } = useAuth();
+    loginWithPassword, loginWithBiometric, loading, error, 
+    checkBiometricAvailability, saveCredentialsForBiometric } = useAuth();
 
   useEffect(() => {
-    refreshCsrfToken();
     checkBiometric();
   }, []);
 

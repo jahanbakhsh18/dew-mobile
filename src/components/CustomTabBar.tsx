@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: Colors.primaryTint, //'rgba(255, 255, 255, 0.95)',
     borderRadius: 35,
     marginHorizontal: 70,
     marginVertical: Spacing.xs,
@@ -144,19 +144,21 @@ const styles = StyleSheet.create({
     marginLeft: 40,
   },
   iconContainer: {
-    padding: Spacing.md, // Slightly larger tap area
+    padding: Spacing.md,
     borderRadius: 30,
   },
   activeIconContainer: {
     backgroundColor: 'rgba(0, 122, 255, 0.15)',
+    borderRadius: 20
   },
+  
   // FAB styles
   fabContainer: {
     position: 'absolute',
-    top: 1, // Move FAB higher to create more separation
+    top: 3,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10, // Ensure FAB stays on top
+    zIndex: 10
   },
   fabIconContainer: {
     width: 65,

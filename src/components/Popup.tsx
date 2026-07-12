@@ -11,7 +11,7 @@ interface PopupProps {
   message: string;
 }
 
-const SamplePopup: React.FC<PopupProps> = ({ visible, onClose, title, message }) => {
+const Popup: React.FC<PopupProps> = ({ visible, onClose, title, message }) => {
   return (
     <Modal
       transparent
@@ -44,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SamplePopup;
+export default Popup;

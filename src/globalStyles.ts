@@ -136,8 +136,8 @@ export const ModalStyles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
     borderRadius: Spacing.lg,
-    width: '90%',
-    maxHeight: '80%',
+    width: '95%',
+    maxHeight: '100%',
     padding: Spacing.xl,
   },
   header: {
