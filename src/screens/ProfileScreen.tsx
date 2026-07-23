@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView, Linking } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Alert, ScrollView, Linking, Image, ActivityIndicator, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -7,12 +7,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { Colors, Spacing, Typography, Layout, Shadows } from '../globalStyles';
 import DeviceInfo from 'react-native-device-info';
 import Popup from '../components/Popup';
+import { API_URL } from '../config';
 
 const GITHUB_OWNER = 'jahanbakhsh18';
 const GITHUB_REPO = 'dew-mobile';
 
 const ProfileScreen: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { userInfo, getUserInfo, logout } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const [helpPopupVisible, setHelpPopupVisible] = useState(false);
 
@@ -22,6 +24,20 @@ const ProfileScreen: React.FC = () => {
     repository: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`,
     appVersion: DeviceInfo.getVersion(),
   };
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      setLoading(true);
+      try {
+        await getUserInfo();
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserInfo();
+  }, []);
 
   const handleLogout = () => {
     Alert.alert(
@@ -89,10 +105,21 @@ const ProfileScreen: React.FC = () => {
   const menuItems = [
     { icon: 'person', title: 'Account Settings', onPress: () => Alert.alert('Coming Soon', 'Account settings will be available soon') },
     { icon: 'notifications', title: 'Notifications', onPress: () => Alert.alert('Coming Soon', 'Notification settings will be available soon') },
-    { icon: 'security', title: 'Security', onPress: () => Alert.alert('Coming Soon', 'Security settings will be available soon') },
+    //{ icon: 'security', title: 'Security', onPress: () => Alert.alert('Coming Soon', 'Security settings will be available soon') },
     { icon: 'update', title: 'App Updates', onPress: checkForUpdates },
     { icon: 'help', title: 'Help & Support', onPress: () => setHelpPopupVisible(true) }
   ];
+
+  const getFullImageUrl = (imagePath: string) => {
+    if (!imagePath) return null;
+    console.log(`${API_URL.replace(/\/$/, '')}/${imagePath}`);
+    return `${API_URL.replace(/\/$/, '')}/upload/${imagePath}`;
+  };
+
+  const userDisplayName = userInfo?.DisplayName || userInfo?.Username || 'User';
+  const userAvatarInitial = userDisplayName.charAt(0).toUpperCase();
+  const userImageUrl = userInfo?.UserImage ? getFullImageUrl(userInfo.UserImage) : null;
+  const roleNames = userInfo?.RoleNames?.join(', ') || 'No roles assigned';
 
   return (
     <SafeAreaView style={Layout.container} edges={['bottom']}>
@@ -105,14 +132,27 @@ const ProfileScreen: React.FC = () => {
           style={styles.header}
         >
           <View style={styles.avatarRing}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user?.username?.charAt(0).toUpperCase() || 'U'}
-              </Text>
-            </View>
+            {loading ? (
+              <View style={styles.avatar}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+              </View>
+            ) : userImageUrl ? (
+              <Image source={{ uri: userImageUrl }} style={styles.avatarImage} />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{userAvatarInitial}</Text>
+              </View>
+            )}
           </View>
-          <Text style={styles.userName}>{user?.username || 'User'}</Text>
-          <Text style={styles.userMeta}>Signed in</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color={Colors.white} style={{ marginTop: 8 }} />
+          ) : (
+            <>
+              <Text style={styles.userName}> {userDisplayName} </Text>
+              <Text style={styles.userMeta}> @{userInfo?.Username || 'Unknown'} </Text>
+              {roleNames ? <Text style={styles.userRole}> ROLE: {roleNames}</Text> : null}
+            </>
+          )}
         </LinearGradient>
 
         <View style={styles.menuSection}>
@@ -155,7 +195,7 @@ const ProfileScreen: React.FC = () => {
         visible={helpPopupVisible}
         onClose={() => setHelpPopupVisible(false)}
         title="Help & Support"
-        message={`\n` + 
+        message={`\n` +
           `${developerInfo.name}\n\n` +
           `${developerInfo.email}\n` +
           `${developerInfo.repository}\n\n` +
@@ -193,6 +233,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...Shadows.raised,
   },
+  avatarImage: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    resizeMode: 'cover',
+  },
   avatarText: {
     fontSize: 40,
     fontWeight: '700',
@@ -207,6 +253,15 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'rgba(255,255,255,0.8)',
     marginTop: 2,
+  },
+  userRole: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.6)',
+    marginTop: 4,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   sectionEyebrow: {
     ...Typography.eyebrow,

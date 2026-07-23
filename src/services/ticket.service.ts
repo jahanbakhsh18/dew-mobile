@@ -46,54 +46,32 @@ class TicketService {
       }
     };
 
-    try {
-      const response = await apiClient.post<TicketListResponse>(
-        "/Services/Ticket/Ticket/List",
-        requestData
-      );
+    const response = await apiClient.post<TicketListResponse>(
+      "/Services/Ticket/Ticket/List",
+      requestData
+    );
 
-      if (response.status === 200 && response.data) {
-        return response.data;
-      }
-      throw new Error('Failed to fetch tickets');
-    } catch (error) {
-      console.error('Error fetching tickets:', error);
-      throw error;
-    }
+    return response.data;
   }
 
   async getTicketDetails(entityId: number): Promise<TicketDetailResponse> {
-    try {
-      const response = await apiClient.post<TicketDetailResponse>(
-        "/Services/Ticket/Ticket/Retrieve",
-        { EntityId: entityId }
-      );
 
-      if (response.status === 200 && response.data) {
-        return response.data;
-      }
-      throw new Error('Failed to fetch ticket details');
-    } catch (error) {
-      console.error('Error fetching ticket details:', error);
-      throw error;
-    }
+    const response = await apiClient.post<TicketDetailResponse>(
+      "/Services/Ticket/Ticket/Retrieve",
+      { EntityId: entityId }
+    );
+
+    return response.data;
   }
 
   async createTicket(ticket: CreateTicketRequest): Promise<CreateTicketResponse> {
-    try {
-      const response = await apiClient.post<CreateTicketResponse>(
-        "/Services/Ticket/Ticket/Create",
-        { Entity: ticket }
-      );
 
-      if (response.status === 200 && response.data) {
-        return response.data;
-      }
-      throw new Error('Failed to create ticket');
-    } catch (error) {
-      console.error('Error creating ticket:', error);
-      throw error;
-    }
+    const response = await apiClient.post<CreateTicketResponse>(
+      "/Services/Ticket/Ticket/Create",
+      { Entity: ticket }
+    );
+
+    return response.data;
   }
 }
 

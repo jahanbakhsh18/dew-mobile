@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, LoginCredentials } from '../types';
-import { apiClient } from './apiClient';
+import { apiClient, refreshCsrfToken } from './apiClient';
 import * as Keychain from 'react-native-keychain';
 import { SerenityLookupResponse } from '../types/dropdown.types';
 
@@ -11,20 +11,13 @@ class AuthService {
   async loginWithPassword(credentials: LoginCredentials): Promise<{ user: User; token: string }> {
     try {
 
-      // This ensures the token is bound to the unauthenticated user
-      await this.refreshCsrfToken();
-
-      let response = await apiClient.post("/Account/Login", {
+      const response = await apiClient.post("/Account/Login", {
         Username: credentials.username,
         Password: credentials.password
       });
 
       if (response.status == 200) {
-
-        const user: User = {
-          username: credentials.username,
-          loginTime: Date.now()
-        };
+        const user: User = { username: credentials.username, loginTime: Date.now() };
         const token = response.data.token || 'jwt-token';
 
         await Keychain.setGenericPassword(credentials.username, credentials.password, {
@@ -32,8 +25,7 @@ class AuthService {
           accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
         });
 
-        // Renews the token so it’s now bound to the authenticated user.
-        await this.refreshCsrfToken();
+        await refreshCsrfToken();
 
         return { user, token };
       } else {
@@ -86,19 +78,25 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    let response = await apiClient.get("/Account/Signout");
-    console.log("logout", response?.status);
+    try {
+      const response = await apiClient.get("/Account/Signout");
+      console.log("logout", response?.status);
+    } catch (error) {
+      console.error("Logout request failed:", error);
+    } finally {
+      await AsyncStorage.removeItem(this.TOKEN_KEY);
+      await AsyncStorage.removeItem(this.USER_KEY);
+    }
+  }
+
+  async clearLocalSession(): Promise<void> {
     await AsyncStorage.removeItem(this.TOKEN_KEY);
     await AsyncStorage.removeItem(this.USER_KEY);
   }
 
-  async me(): Promise<void> {
-    apiClient.get("/Account/CurrentUser");
-  }
-
-  async refreshCsrfToken(): Promise<void> {
-    console.log("Calling refreshCsrfToken...");
-    apiClient.get("/"); // "/Account/KeepAlive"
+  async getUserInfo(): Promise<any> {
+    const response = await apiClient.get("/Account/GetUserInfo");
+    return response.data;
   }
 
   async fetchSerenityLookup<T,>(url: string): Promise<T[]> {

@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { AuthState } from '../types';
 import authService from '../services/auth.service';
 import biometricService from '../services/biometric.service';
+import authStore from '../services/authStore';
 
 interface AuthContextType extends AuthState {
   loginWithPassword: (username: string, password: string) => Promise<void>;
@@ -9,8 +10,8 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   checkBiometricAvailability: () => Promise<boolean>;
   saveCredentialsForBiometric: (username: string, password: string) => Promise<boolean>;
+  getUserInfo: () => Promise<any>;
   getDropdownOptions: (key: string, url: string) => Promise<any[]>;
-  setDropdownData: (key: string, data: any[]) => void;
   clearDropdownData: (key?: string) => void;
 }
 
@@ -18,15 +19,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AuthState>({
-    isAuthenticated: false,
-    user: null,
-    loading: true,
-    error: null,
-    dropdownData: {}
+    isAuthenticated: false, user: null, loading: true, 
+    error: null, dropdownData: {}, userInfo: null
   });
 
   useEffect(() => {
+    authStore.setResetLocalAuth(resetLocalAuth);
     checkSession();
+    return () => authStore.setResetLocalAuth(null);
   }, []);
 
   const checkSession = async () => {
@@ -35,24 +35,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("AuthContext", state, session);
 
       if (session) {
-        console.log("We have session... TODO");
         setState({
-          isAuthenticated: false, //true,
-          user: null, //session.user,
-          loading: false,
-          error: null,
-          dropdownData: {}
+          isAuthenticated: true, user: session.user, //null
+          loading: false, error: null, dropdownData: {}, userInfo: null
         });
       } else {
         setState(prev => ({ ...prev, loading: false }));
       }
     } catch (error) {
       setState({
-        isAuthenticated: false,
-        user: null,
-        loading: false,
-        error: 'Session check failed',
-        dropdownData: {}
+        isAuthenticated: false, user: null, loading: false,
+        error: 'Session check failed', dropdownData: {}, userInfo: null
       });
     }
   };
@@ -61,20 +54,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
       const { user, token } = await authService.loginWithPassword({ username, password });
-      await authService.saveSession(token, user);
+      await authService.saveSession(token, user);      
       setState({
-        isAuthenticated: true,
-        user,
-        loading: false,
-        error: null,
-        dropdownData: {}
+        isAuthenticated: true, user,
+        loading: false, error: null, dropdownData: {}, userInfo: null
       });
     } catch (error: any) {
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message || 'Login failed',
-      }));
+      setState(prev => ({ ...prev, loading: false, error: error.message || 'Login failed' }));
       throw error;
     }
   };
@@ -95,17 +81,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { user, token } = await authService.loginWithPassword(credentials);
       await authService.saveSession(token, user);
       setState({
-        isAuthenticated: true,
-        user,
-        loading: false,
-        error: null,
-        dropdownData: {}
+        isAuthenticated: true, user,
+        loading: false, error: null, dropdownData: {}, userInfo: null
       });
     } catch (error: any) {
       setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message || 'Biometric login failed',
+        ...prev, loading: false, error: error.message || 'Biometric login failed',
       }));
       throw error;
     }
@@ -115,11 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authService.logout();
     await biometricService.removeCredentials();
     setState({
-      isAuthenticated: false,
-      user: null,
-      loading: false,
-      error: null,
-      dropdownData: {}
+      isAuthenticated: false, user: null, loading: false,
+      error: null, dropdownData: {}, userInfo: null
     });
   };
 
@@ -131,11 +109,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return await biometricService.saveCredentials(username, password);
   };
 
-  const fetchSerenityLookup = async <T,>(url: string) => {
-    const lookupItems = await authService.fetchSerenityLookup(url);
-    console.log("fetchSerenityLookup", url, lookupItems);
-    return lookupItems;
-  };
+  const getUserInfo = async (): Promise<any> => {
+    if(state.userInfo) {
+      return state.userInfo;
+    }
+
+    try {
+      const userInfo = await authService.getUserInfo();
+      console.log(userInfo);
+      setState(prev => ({ ...prev, userInfo : userInfo }));
+    } catch (error) {
+      throw error;
+    }
+  }
 
   const getDropdownOptions = async (key: string, url: string): Promise<any[]> => {
 
@@ -144,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const lookupItems = await fetchSerenityLookup(url);
+      const lookupItems = await authService.fetchSerenityLookup(url);
       setDropdownData(key, lookupItems);
       return lookupItems;
     } catch (error) {
@@ -155,11 +141,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const setDropdownData = (key: string, data: any[]) => {
     setState(prev => ({
-      ...prev,
-      dropdownData: {
-        ...prev.dropdownData,
-        [key]: data,
-      },
+      ...prev, dropdownData: {
+        ...prev.dropdownData, [key]: data
+      }
     }));
   };
 
@@ -178,6 +162,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const resetLocalAuth = async () => {
+    await authService.clearLocalSession();
+    setState({ isAuthenticated: false, user: null, loading: false, error: null, dropdownData: {}, userInfo: null });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -187,8 +176,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         checkBiometricAvailability,
         saveCredentialsForBiometric,
+        getUserInfo,
         getDropdownOptions,
-        setDropdownData,
         clearDropdownData
       }}
     >

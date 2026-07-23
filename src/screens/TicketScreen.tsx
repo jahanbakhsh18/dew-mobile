@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { 
+import {
   View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator,
   RefreshControl, TextInput, Modal, ScrollView, Alert, StatusBar, Platform
 } from 'react-native';
@@ -9,7 +9,7 @@ import ticketService from '../services/ticket.service';
 import { Ticket } from '../types/ticket.types';
 import { Dropdown } from '../components/Dropdown';
 import LinearGradient from 'react-native-linear-gradient';
-import { 
+import {
   Colors, Spacing, Typography, Layout, Badge, ModalStyles,
   Header, EmptyState, Detail, Filter, Buttons, Shadows } from '../globalStyles';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -61,10 +61,11 @@ const TicketScreen: React.FC = () => {
       setTickets(response.Entities || []);
       setTotalCount(response.TotalCount || 0);
     } catch (err: any) {
-      console.error('Error fetching tickets:', err);
+      if (err.isNotLoggedIn) {
+        return;
+      }
       const errorMessage = err.response?.data?.message || err.message || 'Failed to load tickets';
       setError(errorMessage);
-      Alert.alert('Error', errorMessage);
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -138,11 +139,11 @@ const TicketScreen: React.FC = () => {
   };
 
   const filteredTickets = tickets.filter((ticket) =>
-      searchQuery === '' ||
-      ticket.ProblemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.SystemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.CreatorUsername?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.Id.toString().includes(searchQuery)
+    searchQuery === '' ||
+    ticket.ProblemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ticket.SystemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ticket.CreatorUsername?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    ticket.Id.toString().includes(searchQuery)
   );
 
   const renderTicketItem = ({ item }: { item: Ticket }) => {
@@ -182,8 +183,8 @@ const TicketScreen: React.FC = () => {
             </View>
             {item.ExpireDate && (
               <View style={styles.metaRow}>
-                <Icon name="schedule" size={13} color={new Date(item.ExpireDate) < new Date() ? Colors.danger : Colors.secondary} />
-                <Text style={[styles.date, new Date(item.ExpireDate) < new Date() && styles.expired]}>
+                <Icon name="schedule" size={13} color={item.TimeFlagColor} />
+                <Text style={[styles.date, { color: item.TimeFlagColor }]}>
                   {' '}Expires {new Date(item.ExpireDate).toLocaleDateString()}
                 </Text>
               </View>
@@ -410,12 +411,7 @@ const TicketScreen: React.FC = () => {
                         </Text>
                       )}
                       {selectedTicket.ExpireDate && (
-                        <Text
-                          style={[
-                            Detail.text,
-                            new Date(selectedTicket.ExpireDate) < new Date() && Detail.expiredText,
-                          ]}
-                        >
+                        <Text style={[Detail.text, { color: selectedTicket.TimeFlagColor }]} >
                           Expires: {new Date(selectedTicket.ExpireDate).toLocaleString()}
                         </Text>
                       )}

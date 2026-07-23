@@ -9,6 +9,7 @@ export interface AuthState {
   loading: boolean;
   error: string | null;
   dropdownData: any;
+  userInfo: any;
 }
 
 export interface LoginCredentials {
